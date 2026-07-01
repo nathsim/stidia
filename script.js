@@ -241,18 +241,5 @@
       });
       hero.addEventListener('pointerleave', () => { mockup.style.transform = ''; });
     }
-
-    /* ─── Lueur globale qui suit le curseur ────────────────────────────────── */
-    const glow = document.createElement('div');
-    glow.className = 'cursor-glow';
-    document.body.appendChild(glow);
-    let graf = null, gX = 0, gY = 0;
-    const gapply = () => { graf = null; glow.style.transform = `translate(${gX}px, ${gY}px)`; };
-    window.addEventListener('pointermove', (e) => {
-      gX = e.clientX; gY = e.clientY;
-      glow.style.opacity = '1';
-      if (!graf) graf = requestAnimationFrame(gapply);
-    }, { passive: true });
-    window.addEventListener('pointerleave', () => { glow.style.opacity = '0'; });
   }
 })();

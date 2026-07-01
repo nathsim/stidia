@@ -489,22 +489,6 @@ main { display: block; }
 /* Puces modules : petit rebond 3D */
 .mod { will-change: transform; }
 
-/* Lueur globale qui suit le curseur */
-.cursor-glow {
-  position: fixed;
-  top: 0; left: 0;
-  width: 460px; height: 460px;
-  margin: -230px 0 0 -230px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(circle, rgba(168, 85, 247, .13), rgba(236, 72, 153, .06) 42%, transparent 64%);
-  mix-blend-mode: screen;
-  opacity: 0;
-  transition: opacity .5s var(--ease);
-  will-change: transform;
-}
-
 /* ─── Responsive ──────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .grid--3 { grid-template-columns: repeat(2, 1fr); }
