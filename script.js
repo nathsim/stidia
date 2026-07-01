@@ -49,9 +49,9 @@
       raf = null;
       for (const layer of layers) {
         const depth = parseFloat(layer.dataset.depth) || 20;
-        layer.style.transform = `translate3d(${mx * depth}px, ${my * depth}px, 0)`;
+        layer.style.transform = `translate3d(${mx * depth * 1.4}px, ${my * depth * 1.4}px, 0)`;
       }
-      bg.style.transform = `rotateY(${mx * 7}deg) rotateX(${-my * 7}deg)`;
+      bg.style.transform = `rotateY(${mx * 11}deg) rotateX(${-my * 11}deg)`;
     };
 
     window.addEventListener('mousemove', (e) => {
@@ -144,5 +144,90 @@
     counters.forEach((el) => cio.observe(el));
   } else {
     counters.forEach((el) => { el.textContent = el.dataset.count; });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     INTERACTIONS AVANCÉES À LA SOURIS
+     (désactivées sur tactile et si prefers-reduced-motion)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  const fine = window.matchMedia('(pointer:fine)').matches;
+  if (fine && !reduceMotion) {
+
+    /* ─── Inclinaison 3D + halo qui suit le curseur (cartes & étapes) ──────── */
+    const tiltEls = document.querySelectorAll('.card, .step');
+    tiltEls.forEach((el) => {
+      let raf = null, rx = 0, ry = 0, gx = 50, gy = 50;
+      const apply = () => {
+        raf = null;
+        el.style.transform = `perspective(760px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+        el.style.setProperty('--mx', gx + '%');
+        el.style.setProperty('--my', gy + '%');
+      };
+      el.addEventListener('pointerenter', () => el.classList.add('tilt'));
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;   // 0 → 1
+        const py = (e.clientY - r.top) / r.height;   // 0 → 1
+        ry = (px - 0.5) * 12;   // rotation horizontale
+        rx = (0.5 - py) * 12;   // rotation verticale
+        gx = px * 100; gy = py * 100;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      el.addEventListener('pointerleave', () => {
+        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        el.classList.remove('tilt');
+        el.style.transform = '';
+      });
+    });
+
+    /* ─── Puces modules : petit décalage 3D vers le curseur ────────────────── */
+    document.querySelectorAll('.mod').forEach((el) => {
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = `perspective(400px) rotateX(${-py * 16}deg) rotateY(${px * 16}deg) translateY(-3px)`;
+      });
+      el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+    });
+
+    /* ─── Boutons magnétiques ──────────────────────────────────────────────── */
+    document.querySelectorAll('.btn--primary').forEach((btn) => {
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const x = (e.clientX - r.left - r.width / 2) / (r.width / 2);
+        const y = (e.clientY - r.top - r.height / 2) / (r.height / 2);
+        btn.style.transform = `translate(${x * 7}px, ${y * 5}px)`;
+      });
+      btn.addEventListener('pointerleave', () => { btn.style.transform = ''; });
+    });
+
+    /* ─── Aperçu produit : pivote selon la souris dans le hero ─────────────── */
+    const mockup = document.querySelector('.mockup');
+    const hero   = document.querySelector('.hero');
+    if (mockup && hero) {
+      let mraf = null, mrx = 9, mry = 0;
+      const mapply = () => { mraf = null; mockup.style.transform = `perspective(1400px) rotateX(${mrx}deg) rotateY(${mry}deg)`; };
+      hero.addEventListener('pointermove', (e) => {
+        const r = hero.getBoundingClientRect();
+        mry = ((e.clientX - r.left) / r.width  - 0.5) * 12;
+        mrx = 9 - ((e.clientY - r.top) / r.height - 0.5) * 10;
+        if (!mraf) mraf = requestAnimationFrame(mapply);
+      });
+      hero.addEventListener('pointerleave', () => { mockup.style.transform = ''; });
+    }
+
+    /* ─── Lueur globale qui suit le curseur ────────────────────────────────── */
+    const glow = document.createElement('div');
+    glow.className = 'cursor-glow';
+    document.body.appendChild(glow);
+    let graf = null, gX = 0, gY = 0;
+    const gapply = () => { graf = null; glow.style.transform = `translate(${gX}px, ${gY}px)`; };
+    window.addEventListener('pointermove', (e) => {
+      gX = e.clientX; gY = e.clientY;
+      glow.style.opacity = '1';
+      if (!graf) graf = requestAnimationFrame(gapply);
+    }, { passive: true });
+    window.addEventListener('pointerleave', () => { glow.style.opacity = '0'; });
   }
 })();
