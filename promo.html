@@ -185,12 +185,12 @@
     <button class="mute" id="mute" aria-label="Couper le son" title="Couper/activer le son">🔊</button>
     <button class="replay" id="replay">↻ Rejouer</button>
 
-    <div class="start" id="start">
+    <button class="start" id="start" type="button">
       <div class="ic">🔊</div>
       <div class="t1">Vidéo avec voix off</div>
       <div class="t2">Appuie pour lancer avec le son</div>
       <div class="go">▶ Lancer</div>
-    </div>
+    </button>
   </div>
 
 <script>
@@ -217,7 +217,7 @@
 
   /* ─── Voix off (Web Speech API, gratuite, aucune clé nécessaire) ─────────── */
   const synth = window.speechSynthesis;
-  let frVoices = [], voiceIdx = 0;
+  let frVoices = [], voiceIdx = 0, chosenVoiceURI = null;
   function pickVoice(){
     const voices = synth ? synth.getVoices() : [];
     const fr = voices.filter(v=>/^fr/i.test(v.lang));
@@ -237,36 +237,60 @@
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR';
-    if(frVoices.length) u.voice = frVoices[voiceIdx % frVoices.length];
+    if(frVoices.length){
+      const v = (chosenVoiceURI && frVoices.find(x=>x.voiceURI===chosenVoiceURI)) || frVoices[0];
+      if(v) u.voice = v;
+    }
     u.rate = 1.18;   // débit un peu plus rapide, dynamique
     u.pitch = 1.02;
     u.volume = 1;
     synth.speak(u);
   }
 
-  function show(i){
-    scenes.forEach(s=>s.classList.remove('on','out'));
-    const sc=scenes[i];sc.classList.add('on');
-    const dur=+sc.dataset.dur;
-    speak(sc.dataset.vo);
-    timers.push(setTimeout(()=>sc.classList.add('out'), dur-350));
-    timers.push(setTimeout(()=>{
-      if(i+1<scenes.length){ idx=i+1; show(idx); }
-      else { replay.classList.add('show'); }
-    }, dur));
+  // Instants de départ cumulés de chaque scène
+  const starts=[]; { let acc=0; for(const s of scenes){ starts.push(acc); acc+=+s.dataset.dur; } }
+  let playStart=0, pausedAccum=0, pauseAt=0, paused=false, curScene=-1, rafId=0, finished=false;
+
+  function applyScene(i){
+    scenes.forEach((s,k)=>{
+      if(k===i){ s.classList.remove('out'); s.classList.add('on'); }
+      else if(s.classList.contains('on')){ s.classList.remove('on'); s.classList.add('out'); }
+    });
+    speak(scenes[i].dataset.vo);
+  }
+
+  // Une seule boucle rAF pilote la barre, les scènes ET la voix (tout reste synchronisé)
+  function tick(now){
+    if(paused) return;
+    const elapsed = now - playStart - pausedAccum;
+    bar.style.width = (Math.min(elapsed/total,1)*100)+'%';
+    let i=0; for(let k=0;k<scenes.length;k++){ if(elapsed>=starts[k]) i=k; }
+    if(i!==curScene){ curScene=i; applyScene(i); }
+    if(elapsed>=total){ finished=true; replay.classList.add('show'); return; }
+    rafId=requestAnimationFrame(tick);
   }
 
   function play(){
-    timers.forEach(clearTimeout); timers=[];
     if(synth) synth.cancel();
     replay.classList.remove('show');
     scenes.forEach(s=>s.classList.remove('on','out'));
-    idx=0;
-    // Barre de progression pilotée en CSS (fiable même hors focus)
+    curScene=-1; paused=false; pausedAccum=0; finished=false;
     bar.style.transition='none'; bar.style.width='0';
-    requestAnimationFrame(()=>{ bar.style.transition='width '+total+'ms linear'; bar.style.width='100%'; });
-    show(0);
+    playStart=performance.now();
+    cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
   }
+
+  // Onglet caché : on gèle tout (barre, scènes, voix) et on reprend au retour
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){
+      if(!paused && !finished && playStart){ paused=true; pauseAt=performance.now(); cancelAnimationFrame(rafId); if(synth) synth.cancel(); }
+    } else if(paused && !finished){
+      pausedAccum += performance.now()-pauseAt; paused=false;
+      if(curScene>=0) speak(scenes[curScene].dataset.vo);
+      rafId=requestAnimationFrame(tick);
+    }
+  });
+  window.addEventListener('pagehide', ()=>{ if(synth) synth.cancel(); });
 
   replay.addEventListener('click',play);
 
@@ -280,6 +304,7 @@
   document.getElementById('voice').addEventListener('click',()=>{
     if(!frVoices.length) return;
     voiceIdx = (voiceIdx + 1) % frVoices.length;
+    chosenVoiceURI = frVoices[voiceIdx].voiceURI;
     const cur = document.querySelector('.scene.on');
     if(cur) speak(cur.dataset.vo);
   });
