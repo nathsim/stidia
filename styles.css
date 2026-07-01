@@ -165,13 +165,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .nav__brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
 .nav__logo {
   width: 34px; height: 34px;
-  display: grid; place-items: center;
-  border-radius: 10px;
-  background: var(--grad);
-  color: #fff;
+  border-radius: 9px;
   box-shadow: var(--shadow-glow);
+  display: block;
 }
-.nav__logo svg { width: 19px; height: 19px; }
 .nav__name { font-weight: 800; font-size: 1.15rem; letter-spacing: -.01em; }
 
 .nav__links { display: flex; gap: 26px; }
