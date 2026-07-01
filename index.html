@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Stidia — L'assistant IA qui crée tes TikTok viraux</title>
+  <meta name="description" content="Stidia génère scripts, hooks, hashtags, musiques et vraies vidéos pour TikTok grâce à l'IA — directement dans ton navigateur. Gratuit, sans carte bancaire." />
+  <meta name="theme-color" content="#0D0D14" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Stidia — L'assistant IA pour TikTok" />
+  <meta property="og:description" content="Scripts, hooks, hashtags, musiques et vidéos IA pour TikTok. Gratuit." />
+  <meta property="og:locale" content="fr_FR" />
+
+  <link rel="preload" href="styles.css" as="style" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237C3AED'/%3E%3Cstop offset='1' stop-color='%23EC4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='24' height='24' rx='6' fill='url(%23g)'/%3E%3Cpath d='M12 5L4 9l8 4 8-4-8-4z' fill='white' opacity='.95'/%3E%3Cpath d='M4 15l8 4 8-4' stroke='white' stroke-width='1.5' fill='none' opacity='.7'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+  <!-- ═══════════ FOND ANIMÉ 3D — étoiles (parallaxe souris) ═══════════ -->
+  <div class="bg-3d" id="bg-3d" aria-hidden="true">
+    <div class="bg-3d__glow bg-3d__glow--1"></div>
+    <div class="bg-3d__glow bg-3d__glow--2"></div>
+    <div class="bg-3d__layer" data-depth="14">
+      <div class="bg-3d__stars" data-count="26" data-size-min="1.5" data-size-max="2.5"></div>
+    </div>
+    <div class="bg-3d__layer" data-depth="35">
+      <div class="bg-3d__stars" data-count="20" data-size-min="2.5" data-size-max="3.5"></div>
+    </div>
+    <div class="bg-3d__layer" data-depth="60">
+      <div class="bg-3d__stars" data-count="14" data-size-min="3.5" data-size-max="5"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ EN-TÊTE ═══════════════════════ -->
+  <header class="nav" id="nav">
+    <a href="#top" class="nav__brand" aria-label="Stidia — accueil">
+      <span class="nav__logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </span>
+      <span class="nav__name">Stidia</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Navigation principale">
+      <a href="#features">Fonctions</a>
+      <a href="#how">Comment ça marche</a>
+      <a href="#modules">Modules</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <a href="#download" class="btn btn--primary nav__cta">Installer gratuitement</a>
+
+    <button class="nav__burger" id="nav-burger" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ═══════════════════════ HERO ═══════════════════════ -->
+  <main id="top">
+    <section class="hero">
+      <div class="reveal">
+        <span class="pill">
+          <span class="pill__dot"></span>
+          Nouveau · Génération vidéo IA intégrée
+        </span>
+      </div>
+
+      <h1 class="hero__title reveal">
+        Crée des TikTok <span class="grad-text">viraux</span><br />
+        en quelques secondes avec l'IA
+      </h1>
+
+      <p class="hero__sub reveal">
+        Stidia s'installe dans ton navigateur et génère scripts, accroches, hashtags,
+        musiques tendance et de <strong>vraies vidéos</strong> — sans quitter TikTok.
+      </p>
+
+      <div class="hero__actions reveal">
+        <a href="#download" class="btn btn--primary btn--lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Installer l'extension
+        </a>
+        <a href="#how" class="btn btn--ghost btn--lg">Voir la démo</a>
+      </div>
+
+      <ul class="hero__badges reveal" aria-label="Points clés">
+        <li>✓ 100 % gratuit</li>
+        <li>✓ Sans carte bancaire</li>
+        <li>✓ Données locales</li>
+      </ul>
+
+      <!-- Aperçu produit -->
+      <div class="hero__preview reveal" aria-hidden="true">
+        <div class="mockup">
+          <div class="mockup__bar">
+            <span class="mockup__dot"></span>
+            <span class="mockup__dot"></span>
+            <span class="mockup__dot"></span>
+            <span class="mockup__title">Stidia</span>
+          </div>
+          <div class="mockup__body">
+            <div class="mockup__prompt">
+              <span class="mockup__label">Ton idée</span>
+              <p>Une vidéo drôle sur les chats qui dominent le monde 🐱</p>
+            </div>
+            <div class="mockup__chips">
+              <span class="chip chip--on">Script</span>
+              <span class="chip chip--on">Hashtags</span>
+              <span class="chip chip--on">Musique</span>
+              <span class="chip">Hooks</span>
+              <span class="chip">Vidéo IA</span>
+            </div>
+            <div class="mockup__gen">
+              <span class="mockup__spark">⚡</span> Générer le contenu
+            </div>
+            <div class="mockup__out">
+              <span class="mockup__line" style="width:92%"></span>
+              <span class="mockup__line" style="width:78%"></span>
+              <span class="mockup__line" style="width:85%"></span>
+              <span class="mockup__line" style="width:60%"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ STATS ═══════════════════════ -->
+    <section class="stats" aria-label="Chiffres clés">
+      <div class="stats__item reveal">
+        <span class="stats__num" data-count="15">0</span><span class="grad-text">+</span>
+        <span class="stats__label">Modules créatifs</span>
+      </div>
+      <div class="stats__item reveal">
+        <span class="stats__num" data-count="30">0</span><span class="grad-text">s</span>
+        <span class="stats__label">Pour un script complet</span>
+      </div>
+      <div class="stats__item reveal">
+        <span class="stats__num" data-count="100">0</span><span class="grad-text">%</span>
+        <span class="stats__label">Gratuit, sans limite</span>
+      </div>
+      <div class="stats__item reveal">
+        <span class="stats__num" data-count="0">0</span><span class="grad-text">€</span>
+        <span class="stats__label">Aucun abonnement</span>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ FONCTIONS ═══════════════════════ -->
+    <section class="section" id="features">
+      <div class="section__head reveal">
+        <span class="eyebrow">Fonctions</span>
+        <h2 class="section__title">Tout ce qu'il faut pour <span class="grad-text">percer</span></h2>
+        <p class="section__lead">Un studio de création complet, propulsé par l'IA, directement dans ton navigateur.</p>
+      </div>
+
+      <div class="grid grid--3">
+        <article class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h3>Scripts complets</h3>
+          <p>Dialogues, voix off, textes à l'écran et découpage seconde par seconde, prêts à tourner.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h3>Accroches qui retiennent</h3>
+          <p>5 variantes de hook pour les 3 premières secondes, celles qui décident si on scrolle ou pas.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          </div>
+          <h3>Hashtags stratégiques</h3>
+          <p>Jusqu'à 30 hashtags ciblés pour maximiser ta portée organique et toucher la bonne audience.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <h3>Musiques tendance</h3>
+          <p>Des trending sounds recommandés avec le bon timing de placement pour booster l'engagement.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </div>
+          <h3>Vraies vidéos IA</h3>
+          <p>Assemble automatiquement des séquences vidéo et tes propres images en un montage vertical prêt à publier.</p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>100 % privé</h3>
+          <p>Tes créations et ta clé restent stockées localement dans ton navigateur. Rien n'est revendu.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ COMMENT ÇA MARCHE ═══════════════════════ -->
+    <section class="section" id="how">
+      <div class="section__head reveal">
+        <span class="eyebrow">Simple</span>
+        <h2 class="section__title">3 étapes, <span class="grad-text">zéro friction</span></h2>
+      </div>
+
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step__num">1</span>
+          <h3>Installe l'extension</h3>
+          <p>Ajoute Stidia à ton navigateur. Une bulle discrète apparaît sur TikTok.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__num">2</span>
+          <h3>Décris ton idée</h3>
+          <p>Tape ton concept, choisis les modules et laisse l'IA travailler.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__num">3</span>
+          <h3>Publie &amp; deviens viral</h3>
+          <p>Copie le script, télécharge la vidéo et poste. C'est tout.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ═══════════════════════ MODULES ═══════════════════════ -->
+    <section class="section" id="modules">
+      <div class="section__head reveal">
+        <span class="eyebrow">15+ modules</span>
+        <h2 class="section__title">Compose ta <span class="grad-text">recette virale</span></h2>
+        <p class="section__lead">Active seulement ce dont tu as besoin. Chaque module affine ce que l'IA produit.</p>
+      </div>
+
+      <div class="modules reveal" id="modules-cloud">
+        <span class="mod">📝 Script complet</span>
+        <span class="mod">⚡ 5 accroches</span>
+        <span class="mod"># Hashtags viraux</span>
+        <span class="mod">🎵 Musique &amp; sons</span>
+        <span class="mod">🎬 Vidéo IA</span>
+        <span class="mod">📈 Stratégie virale</span>
+        <span class="mod">🖼️ Miniature</span>
+        <span class="mod">🔁 Réutilisation</span>
+        <span class="mod">📖 Storytelling</span>
+        <span class="mod">🎞️ Transitions</span>
+        <span class="mod">💬 Débat / Choc</span>
+        <span class="mod">🎯 Appels à l'action</span>
+        <span class="mod">🔎 SEO TikTok</span>
+        <span class="mod">👥 Idées Collab</span>
+        <span class="mod">📹 Tournage facile</span>
+        <span class="mod">🧠 Psychologie</span>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ CTA DOWNLOAD ═══════════════════════ -->
+    <section class="section" id="download">
+      <div class="cta reveal">
+        <div class="cta__glow" aria-hidden="true"></div>
+        <h2 class="cta__title">Prêt à passer <span class="grad-text">viral</span> ?</h2>
+        <p class="cta__sub">Installe Stidia gratuitement et génère ton premier TikTok en moins d'une minute.</p>
+        <div class="cta__actions">
+          <a href="#" class="btn btn--primary btn--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Télécharger pour Chrome
+          </a>
+          <a href="#how" class="btn btn--ghost btn--lg">Comment l'installer ?</a>
+        </div>
+        <p class="cta__fine">Aucune inscription requise · Fonctionne sur Chrome, Edge &amp; Brave</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ FAQ ═══════════════════════ -->
+    <section class="section" id="faq">
+      <div class="section__head reveal">
+        <span class="eyebrow">FAQ</span>
+        <h2 class="section__title">Questions <span class="grad-text">fréquentes</span></h2>
+      </div>
+
+      <div class="faq reveal">
+        <details class="faq__item">
+          <summary>Stidia est-il vraiment gratuit ?</summary>
+          <p>Oui. Stidia est 100 % gratuit et ne demande aucune carte bancaire. Tu utilises ta propre clé d'API gratuite pour l'IA.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Mes données sont-elles en sécurité ?</summary>
+          <p>Toutes tes créations, ta clé et tes paramètres sont stockés localement dans ton navigateur. Rien n'est envoyé à nos serveurs, rien n'est revendu.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Sur quels navigateurs ça fonctionne ?</summary>
+          <p>Sur tous les navigateurs basés sur Chromium : Chrome, Edge, Brave et Opera.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Est-ce que ça crée vraiment des vidéos ?</summary>
+          <p>Oui. Stidia assemble des séquences vidéo et tes propres images en un montage vertical prêt à publier, que tu peux télécharger en un clic.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Ai-je besoin de compétences techniques ?</summary>
+          <p>Aucune. Tu décris ton idée en une phrase, tu cliques sur « Générer » et tu récupères un contenu prêt à l'emploi.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════════════ PIED DE PAGE ═══════════════════════ -->
+  <footer class="footer">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="nav__logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </span>
+        <div>
+          <span class="nav__name">Stidia</span>
+          <p class="footer__tag">L'IA qui crée tes TikTok viraux.</p>
+        </div>
+      </div>
+      <nav class="footer__links" aria-label="Liens du pied de page">
+        <a href="#features">Fonctions</a>
+        <a href="#how">Guide</a>
+        <a href="#modules">Modules</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download">Installer</a>
+      </nav>
+    </div>
+    <div class="footer__bottom">
+      <span>© <span id="year">2026</span> Stidia. Tous droits réservés.</span>
+      <span>Fait avec 💜 pour les créateurs</span>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
