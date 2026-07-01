@@ -57,9 +57,12 @@
         tmy = (e.clientY / window.innerHeight - 0.5) * 2;
       }, { passive: true });
       window.addEventListener('mouseleave', () => { tmx = 0; tmy = 0; });
+      // Recentre le fond quand la fenêtre perd le focus
+      window.addEventListener('blur', () => { tmx = 0; tmy = 0; });
     }
 
     const t0 = performance.now();
+    let running = true, rafId = 0;
     const loop = (now) => {
       const s = (now - t0) / 1000; // secondes écoulées
 
@@ -80,9 +83,15 @@
       }
       bg.style.transform = `rotateY(${ox * 8}deg) rotateX(${-oy * 8}deg)`;
 
-      requestAnimationFrame(loop);
+      if (running) rafId = requestAnimationFrame(loop);
     };
-    requestAnimationFrame(loop);
+    rafId = requestAnimationFrame(loop);
+
+    // Coupe la boucle quand l'onglet est caché (économie CPU/batterie), relance au retour
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { running = false; cancelAnimationFrame(rafId); }
+      else if (!running) { running = true; rafId = requestAnimationFrame(loop); }
+    });
   }
 
   /* ─── Navigation : ombre au scroll + menu mobile ─────────────────────────── */
@@ -98,16 +107,36 @@
   const burger = document.getElementById('nav-burger');
   const links  = document.querySelector('.nav__links');
   if (burger && links) {
+    if (!links.id) links.id = 'nav-links';
+    burger.setAttribute('aria-controls', links.id);
+    const closeMenu = () => {
+      links.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+      burger.setAttribute('aria-label', 'Ouvrir le menu');
+    };
     burger.addEventListener('click', () => {
       const open = links.classList.toggle('open');
       burger.setAttribute('aria-expanded', String(open));
       burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+      if (open) { const first = links.querySelector('a'); if (first) first.focus(); }
     });
-    links.addEventListener('click', (e) => {
-      if (e.target.tagName === 'A') {
-        links.classList.remove('open');
-        burger.setAttribute('aria-expanded', 'false');
-      }
+    links.addEventListener('click', (e) => { if (e.target.tagName === 'A') closeMenu(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('open')) { closeMenu(); burger.focus(); }
+    });
+  }
+
+  /* ─── Démo vidéo : charge l'iframe seulement au clic (façade) ────────────── */
+  const demoFacade = document.getElementById('demo-facade');
+  const demoPhone  = document.getElementById('demo-phone');
+  if (demoFacade && demoPhone) {
+    demoFacade.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.className = 'demo__frame';
+      frame.src = 'promo.html';
+      frame.title = 'Vidéo de présentation Stidia';
+      frame.setAttribute('allow', 'autoplay');
+      demoFacade.replaceWith(frame);
     });
   }
 

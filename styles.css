@@ -15,8 +15,8 @@
   --c-green:     #10B981;
 
   --c-text:      #F4F2F8;
-  --c-muted:     #A9A4B8;
-  --c-faint:     #6F6980;
+  --c-muted:     #B4AEC6;
+  --c-faint:     #8F89A6;
 
   --c-surface:   rgba(255, 255, 255, 0.035);
   --c-surface-2: rgba(255, 255, 255, 0.06);
@@ -38,6 +38,9 @@
   --nav-h: 68px;
 
   --ease: cubic-bezier(.4, 0, .2, 1);
+
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Sora', 'Inter', -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* ─── Reset ───────────────────────────────────────────────────────────────────── */
@@ -46,7 +49,7 @@
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 16px); -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   color: var(--c-text);
   background: var(--c-bg);
   line-height: 1.6;
@@ -56,10 +59,38 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Titres en police display (Sora) pour un rendu plus premium */
+.hero__title, .section__title, .cta__title, .nav__name,
+.stats__num, .stats__item .grad-text, .cta__title {
+  font-family: var(--font-display);
+}
+
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 ::selection { background: rgba(168, 85, 247, .4); color: #fff; }
+
+/* Focus clavier visible partout */
+:focus-visible {
+  outline: 2px solid var(--c-violet-2);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* Lien d'évitement (accessibilité clavier) */
+.skip-link {
+  position: fixed; top: -60px; left: 12px; z-index: 200;
+  background: var(--grad); color: #fff; font-weight: 600;
+  padding: 10px 18px; border-radius: 10px;
+  transition: top .2s var(--ease);
+}
+.skip-link:focus { top: 12px; }
+
+/* Titres en dégradé lisibles en mode contraste forcé */
+@media (forced-colors: active) {
+  .grad-text { -webkit-text-fill-color: currentColor; color: CanvasText; background: none; }
+}
 
 /* ─── Fond 3D — étoiles (parallaxe souris) ─────────────────────────────────────── */
 .bg-3d {
@@ -155,8 +186,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   gap: 28px;
   padding: 0 clamp(16px, 4vw, 40px);
   background: rgba(13, 13, 20, .55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid transparent;
   transition: background .3s var(--ease), border-color .3s var(--ease);
 }
@@ -262,6 +293,7 @@ main { display: block; }
   position: relative;
   width: min(300px, 80vw);
   aspect-ratio: 9 / 16;
+  max-height: 78vh;
   border-radius: 40px;
   padding: 10px;
   background: linear-gradient(160deg, #2a2140, #14101d);
@@ -278,11 +310,37 @@ main { display: block; }
   border: none; border-radius: 31px;
   display: block; background: #05050a;
 }
+/* Façade (poster) : évite de charger la vidéo lourde avant le clic */
+.demo__facade {
+  width: 100%; height: 100%;
+  border: none; border-radius: 31px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  cursor: pointer; overflow: hidden; position: relative;
+  background:
+    radial-gradient(120% 70% at 80% -5%, rgba(124,58,237,.5), transparent 55%),
+    radial-gradient(110% 60% at 10% 15%, rgba(236,72,153,.4), transparent 55%),
+    linear-gradient(160deg, #1c1330, #0a0710);
+  transition: transform .3s var(--ease);
+}
+.demo__facade:hover { transform: scale(1.015); }
+.demo__logo { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 16px; background: var(--grad); box-shadow: var(--shadow-glow); }
+.demo__logo svg { width: 34px; height: 34px; }
+.demo__play {
+  width: 66px; height: 66px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.35);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 8px 30px -4px rgba(0,0,0,.5);
+  animation: demoPulse 2s ease-in-out infinite;
+}
+.demo__play svg { width: 28px; height: 28px; margin-left: 3px; }
+@keyframes demoPulse { 0%,100%{ box-shadow: 0 0 0 0 rgba(236,72,153,.5) } 70%{ box-shadow: 0 0 0 16px rgba(236,72,153,0) } }
+.demo__facade-txt { font-weight: 700; color: #fff; font-size: 1rem; letter-spacing: .01em; }
 
 /* ─── Stats ───────────────────────────────────────────────────────────────────── */
 .stats {
   max-width: var(--maxw);
-  margin: 0 auto;
+  margin: clamp(40px, 7vw, 84px) auto;
   padding: 0 clamp(16px, 4vw, 40px);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -295,10 +353,11 @@ main { display: block; }
   border: 1px solid var(--c-border);
   border-radius: var(--r-lg);
   backdrop-filter: blur(6px);
+  white-space: nowrap;
 }
 .stats__num { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -.02em; }
 .stats__item .grad-text { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; }
-.stats__label { display: block; margin-top: 6px; font-size: .86rem; color: var(--c-muted); }
+.stats__label { display: block; margin-top: 6px; font-size: .86rem; color: var(--c-muted); white-space: normal; }
 
 /* ─── Grilles / Cartes ────────────────────────────────────────────────────────── */
 .grid { display: grid; gap: 20px; }
@@ -483,7 +542,9 @@ main { display: block; }
 
 /* ─── Interactions avancées (souris) ──────────────────────────────────────────── */
 /* Inclinaison 3D + halo lumineux qui suit le curseur (cartes, étapes, stats, CTA, FAQ) */
-.card, .step, .stats__item, .cta, .faq__item { transform-style: preserve-3d; will-change: transform; }
+.card, .step, .stats__item, .cta, .faq__item { transform-style: preserve-3d; }
+/* will-change activé seulement pendant l'interaction (perf : évite 40+ couches permanentes) */
+.tilt { will-change: transform; }
 .stats__item, .faq__item { position: relative; }
 .card::after, .step::after, .stats__item::after, .cta::after, .faq__item::after {
   content: "";
@@ -503,12 +564,6 @@ main { display: block; }
 /* Reflet qui balaie la carte au survol */
 .card::before { transition: opacity .3s var(--ease), transform .6s var(--ease); }
 
-/* Boutons magnétiques : léger suivi du curseur (transform posé en JS) */
-.btn { will-change: transform; }
-
-/* Puces modules : petit rebond 3D */
-.mod { will-change: transform; }
-
 /* ─── Responsive ──────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .grid--3 { grid-template-columns: repeat(2, 1fr); }
@@ -516,9 +571,11 @@ main { display: block; }
   .stats { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 720px) {
-  .nav__links, .nav__cta { display: none; }
+@media (max-width: 860px) {
+  .nav__links { display: none; }
   .nav__burger { display: flex; }
+  /* Le CTA reste visible, en version compacte, à côté du burger */
+  .nav__cta { padding: 9px 15px; font-size: .88rem; }
   .nav__links.open {
     display: flex;
     position: absolute;
@@ -526,11 +583,19 @@ main { display: block; }
     flex-direction: column;
     gap: 4px;
     padding: 14px clamp(16px, 4vw, 40px) 20px;
-    background: rgba(13, 13, 20, .96);
+    max-height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    background: rgba(13, 13, 20, .97);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--c-border);
   }
-  .nav__links.open a { padding: 10px 0; font-size: 1rem; }
+  .nav__links.open a { padding: 12px 0; font-size: 1.05rem; }
+}
+
+@media (max-width: 460px) {
+  /* Nav compacte : le CTA reste toujours accessible */
+  .nav { gap: 12px; padding: 0 14px; }
+  .nav__cta { padding: 8px 12px; font-size: .82rem; }
 }
 
 @media (max-width: 560px) {

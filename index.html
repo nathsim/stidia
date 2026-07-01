@@ -7,18 +7,66 @@
   <title>Stidia — L'assistant IA qui crée tes TikTok viraux</title>
   <meta name="description" content="Stidia génère scripts, hooks, hashtags, musiques et vraies vidéos pour TikTok grâce à l'IA — directement dans ton navigateur. Gratuit, sans carte bancaire." />
   <meta name="theme-color" content="#0D0D14" />
+  <meta name="author" content="Stidia" />
+  <link rel="canonical" href="https://nathsim.github.io/stidia/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Stidia — L'assistant IA pour TikTok" />
-  <meta property="og:description" content="Scripts, hooks, hashtags, musiques et vidéos IA pour TikTok. Gratuit." />
+  <meta property="og:url" content="https://nathsim.github.io/stidia/" />
+  <meta property="og:site_name" content="Stidia" />
+  <meta property="og:title" content="Stidia — L'assistant IA qui crée tes TikTok viraux" />
+  <meta property="og:description" content="Scripts, accroches, hashtags, musiques et vraies vidéos pour TikTok grâce à l'IA. Gratuit, dans ton navigateur." />
   <meta property="og:locale" content="fr_FR" />
+  <meta property="og:image" content="https://nathsim.github.io/stidia/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Stidia — Crée des TikTok viraux avec l'IA" />
 
-  <link rel="preload" href="styles.css" as="style" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Stidia — L'assistant IA qui crée tes TikTok viraux" />
+  <meta name="twitter:description" content="Scripts, accroches, hashtags, musiques et vraies vidéos pour TikTok grâce à l'IA. Gratuit." />
+  <meta name="twitter:image" content="https://nathsim.github.io/stidia/og-image.png" />
+
+  <!-- Données structurées -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Stidia",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Chrome, Edge, Brave, Opera",
+    "description": "Assistant IA qui génère scripts, accroches, hashtags, musiques et vidéos pour TikTok, directement dans le navigateur.",
+    "url": "https://nathsim.github.io/stidia/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Stidia est-il vraiment gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, 100% gratuit et sans carte bancaire. Tu utilises tes propres clés API gratuites : Groq pour le texte et Pexels pour la vidéo." } },
+      { "@type": "Question", "name": "De quoi ai-je besoin pour commencer ?", "acceptedAnswer": { "@type": "Answer", "text": "Un compte Stidia créé dans l'extension, une clé Groq (texte) et une clé Pexels (vidéo). Tout est gratuit, sans carte bancaire." } },
+      { "@type": "Question", "name": "Sur quels navigateurs ça fonctionne ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur tous les navigateurs basés sur Chromium : Chrome, Edge, Brave et Opera." } },
+      { "@type": "Question", "name": "Est-ce que ça crée vraiment des vidéos ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, Stidia assemble des séquences vidéo et tes propres images en un montage vertical prêt à publier." } }
+    ]
+  }
+  </script>
+
+  <meta name="robots" content="index, follow" />
+
+  <!-- Polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" />
+
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="logo.svg" type="image/svg+xml" />
 </head>
 <body>
+
+  <a href="#top" class="skip-link">Aller au contenu</a>
 
   <!-- ═══════════ FOND ANIMÉ 3D — étoiles (parallaxe souris) ═══════════ -->
   <div class="bg-3d" id="bg-3d" aria-hidden="true">
@@ -139,9 +187,17 @@
       </div>
 
       <div class="demo reveal">
-        <div class="demo__phone">
+        <div class="demo__phone" id="demo-phone">
           <div class="demo__notch" aria-hidden="true"></div>
-          <iframe class="demo__frame" src="promo.html" title="Vidéo de présentation Stidia" loading="lazy" allow="autoplay"></iframe>
+          <button class="demo__facade" id="demo-facade" aria-label="Lancer la vidéo de démo Stidia">
+            <span class="demo__logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="#fff"><path d="M13.6 4.4 L7.7 13.1 h3.5 l-0.9 6.5 6.1 -8.9 h-3.6 z"/></svg>
+            </span>
+            <span class="demo__play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+            <span class="demo__facade-txt">Voir la démo · 30 s</span>
+          </button>
         </div>
         <a class="btn btn--ghost" href="promo.html" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
@@ -296,11 +352,11 @@
           </a>
           <a href="#install-steps" class="btn btn--ghost btn--lg">Voir les étapes</a>
         </div>
-        <p class="cta__fine">Gratuit · Sans inscription · Chrome, Edge &amp; Brave</p>
+        <p class="cta__fine">100% gratuit · Compte en 30 s · Chrome, Edge, Brave &amp; Opera</p>
 
         <!-- Guide d'installation -->
         <div class="install" id="install-steps">
-          <p class="install__intro">Une extension ne peut pas s'installer directement depuis un site (sécurité du navigateur). Après le téléchargement, en 4 petites étapes :</p>
+          <p class="install__intro">Une extension ne peut pas s'installer directement depuis un site (sécurité du navigateur). Après le téléchargement, en 5 petites étapes :</p>
           <ol class="install__steps">
             <li>
               <span class="install__num">1</span>
@@ -316,10 +372,14 @@
             </li>
             <li>
               <span class="install__num">4</span>
-              <div><strong>Charge l'extension</strong><span>Clique « Charger l'extension non empaquetée » et sélectionne le dossier décompressé. C'est fait ! 🎉</span></div>
+              <div><strong>Charge l'extension</strong><span>Clique « Charger l'extension non empaquetée » et sélectionne le dossier décompressé.</span></div>
+            </li>
+            <li>
+              <span class="install__num">5</span>
+              <div><strong>Crée ton compte &amp; colle tes clés gratuites</strong><span>Sur TikTok, ouvre la bulle Stidia, crée un compte, puis colle ta clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (texte) et ta clé <a href="https://www.pexels.com/api/" target="_blank" rel="noopener">Pexels</a> (vidéo) — les deux gratuites, sans carte. 🎉</span></div>
             </li>
           </ol>
-          <p class="install__note">💡 Une bulle violette Stidia apparaîtra ensuite sur TikTok. Pour un vrai bouton « Ajouter à Chrome » en 1 clic, l'extension devra être publiée sur le Chrome Web Store.</p>
+          <p class="install__note">💡 Une bulle violette Stidia apparaîtra sur TikTok. Pour un vrai bouton « Ajouter à Chrome » en 1 clic, l'extension devra être publiée sur le Chrome Web Store.</p>
         </div>
       </div>
     </section>
@@ -334,7 +394,11 @@
       <div class="faq reveal">
         <details class="faq__item">
           <summary>Stidia est-il vraiment gratuit ?</summary>
-          <p>Oui. Stidia est 100 % gratuit et ne demande aucune carte bancaire. Tu utilises ta propre clé d'API gratuite pour l'IA.</p>
+          <p>Oui. Stidia est 100 % gratuit et ne demande aucune carte bancaire. Tu utilises tes propres clés d'API gratuites : Groq pour le texte et Pexels pour la vidéo.</p>
+        </details>
+        <details class="faq__item">
+          <summary>De quoi ai-je besoin pour commencer ?</summary>
+          <p>Trois choses, toutes gratuites et en 2 minutes : un compte Stidia (créé directement dans l'extension), une clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (génération de texte) et une clé <a href="https://www.pexels.com/api/" target="_blank" rel="noopener">Pexels</a> (génération de vidéo). Aucune carte bancaire.</p>
         </details>
         <details class="faq__item">
           <summary>Mes données sont-elles en sécurité ?</summary>
@@ -350,7 +414,7 @@
         </details>
         <details class="faq__item">
           <summary>Ai-je besoin de compétences techniques ?</summary>
-          <p>Aucune. Tu décris ton idée en une phrase, tu cliques sur « Générer » et tu récupères un contenu prêt à l'emploi.</p>
+          <p>Presque aucune. L'installation prend 5 minutes une seule fois (guide pas à pas ci-dessus). Ensuite, tu décris ton idée en une phrase, tu cliques sur « Générer » et tu récupères un contenu prêt à l'emploi.</p>
         </details>
       </div>
     </section>
