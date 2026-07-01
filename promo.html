@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stidia — Promo TikTok</title>
+<style>
+  :root{
+    --violet:#7C3AED; --violet2:#A855F7; --pink:#EC4899; --fuchsia:#D946EF;
+    --grad:linear-gradient(120deg,#7C3AED 0%,#A855F7 45%,#EC4899 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#05050a;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+  body{display:grid;place-items:center}
+
+  /* Scène verticale 9:16 */
+  .stage{
+    position:relative;
+    width:min(100vw, 56.25vh); aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 80% -10%, rgba(124,58,237,.30), transparent 55%),
+      radial-gradient(110% 70% at 10% 15%, rgba(236,72,153,.22), transparent 55%),
+      linear-gradient(160deg,#160f22 0%,#1c1330 30%,#241a2c 55%,#150e1f 80%,#08060e 100%);
+    color:#fff;
+  }
+
+  /* Étoiles */
+  .stars{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;animation:tw ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1.25)}}
+
+  /* Halo qui bouge */
+  .aura{position:absolute;width:80%;aspect-ratio:1;border-radius:50%;filter:blur(60px);
+    background:radial-gradient(circle,rgba(168,85,247,.35),transparent 65%);
+    top:20%;left:10%;z-index:0;animation:drift 12s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(20%,25%)}}
+
+  /* Scènes */
+  .scene{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:0 8%;
+    opacity:0;pointer-events:none}
+  .scene.on{opacity:1}
+  .scene.out{opacity:0;transition:opacity .35s ease}
+
+  .kicker{font-size:2.6vh;font-weight:700;letter-spacing:.28em;text-transform:uppercase;
+    color:#E9D5FF;opacity:.85;margin-bottom:2.4vh}
+  .big{font-size:9.2vh;font-weight:900;line-height:1.02;letter-spacing:-.02em}
+  .mid{font-size:6.2vh;font-weight:800;line-height:1.1;letter-spacing:-.01em}
+  .sub{font-size:3.4vh;font-weight:600;color:#CFC6E6;margin-top:2.6vh;line-height:1.35}
+  .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .glow{text-shadow:0 0 34px rgba(168,85,247,.55)}
+  .emoji{font-size:11vh;line-height:1;filter:drop-shadow(0 6px 24px rgba(0,0,0,.4))}
+
+  /* Entrées animées */
+  .on .up{animation:up .7s cubic-bezier(.2,.8,.2,1) both}
+  .on .up2{animation:up .7s .12s cubic-bezier(.2,.8,.2,1) both}
+  .on .up3{animation:up .7s .24s cubic-bezier(.2,.8,.2,1) both}
+  .on .pop{animation:pop .6s cubic-bezier(.2,1.3,.4,1) both}
+  .on .zoom{animation:zoom .8s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes up{from{opacity:0;transform:translateY(4.5vh)}to{opacity:1;transform:none}}
+  @keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+  @keyframes zoom{from{opacity:0;transform:scale(1.35);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+
+  /* Logo */
+  .logo{width:20vh;height:20vh;border-radius:4.4vh;display:grid;place-items:center;
+    box-shadow:0 12px 50px -8px rgba(124,58,237,.8);margin-bottom:3vh}
+  .logo svg{width:12vh;height:12vh}
+
+  /* Puces de fonctionnalités */
+  .chips{display:flex;flex-direction:column;gap:1.8vh;margin-top:1vh;width:100%;align-items:stretch}
+  .chip{font-size:4vh;font-weight:800;padding:2.1vh 3vh;border-radius:2.6vh;
+    background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.4);
+    display:flex;align-items:center;gap:2.4vh;backdrop-filter:blur(4px)}
+  .chip .ic{font-size:5vh}
+  .on .chip{animation:slidein .6s cubic-bezier(.2,1.2,.4,1) both}
+  .on .chip:nth-child(1){animation-delay:.05s}
+  .on .chip:nth-child(2){animation-delay:.55s}
+  .on .chip:nth-child(3){animation-delay:1.05s}
+  .on .chip:nth-child(4){animation-delay:1.55s}
+  .on .chip:nth-child(5){animation-delay:2.05s}
+  @keyframes slidein{from{opacity:0;transform:translateX(-8vh) scale(.9)}to{opacity:1;transform:none}}
+
+  /* CTA */
+  .cta-btn{margin-top:4vh;font-size:4.6vh;font-weight:900;color:#fff;padding:2.6vh 5vh;
+    border-radius:99px;background:var(--grad);box-shadow:0 14px 44px -6px rgba(236,72,153,.7);
+    animation:beat 1.1s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  .hand{font-size:7vh;margin-top:1.5vh;animation:bob 1s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4vh)}}
+
+  /* Barre de progression + marque */
+  .bar{position:absolute;left:0;top:0;height:.7vh;width:0;z-index:5;background:var(--grad)}
+  .mark{position:absolute;bottom:2.4vh;left:0;right:0;z-index:5;text-align:center;
+    font-size:2.8vh;font-weight:800;letter-spacing:.04em;color:#fff;opacity:.9;
+    display:flex;align-items:center;justify-content:center;gap:1.4vh}
+  .mark .dot{width:3.4vh;height:3.4vh;border-radius:1vh;display:inline-grid;place-items:center;background:var(--grad)}
+  .mark .dot svg{width:2.2vh;height:2.2vh;fill:#fff}
+
+  .replay{position:absolute;z-index:9;bottom:8vh;left:50%;transform:translateX(-50%);
+    font-size:2.6vh;font-weight:700;color:#fff;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.25);padding:1.4vh 3vh;border-radius:99px;cursor:pointer;
+    opacity:0;transition:opacity .4s;pointer-events:none}
+  .replay.show{opacity:1;pointer-events:auto}
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="stars" id="stars"></div>
+    <div class="aura"></div>
+    <div class="bar" id="bar"></div>
+
+    <!-- 1 · HOOK -->
+    <div class="scene" data-dur="2600">
+      <div class="emoji up">😩</div>
+      <div class="big up2">0 vue sur<br><span class="grad glow">TikTok</span> ?</div>
+    </div>
+
+    <!-- 2 · PROBLÈME -->
+    <div class="scene" data-dur="3400">
+      <div class="kicker up">le vrai problème</div>
+      <div class="mid up2">L'idée. Le script.<br>Les hashtags. La vidéo…</div>
+      <div class="sub up3">😮‍💨 Des <b>heures</b> de galère à chaque post.</div>
+    </div>
+
+    <!-- 3 · REVEAL -->
+    <div class="scene" data-dur="2800">
+      <div class="logo zoom" style="background:linear-gradient(135deg,#7C3AED,#A855F7,#EC4899)">
+        <svg viewBox="0 0 24 24" fill="#fff"><path d="M13.6 4.4 L7.7 13.1 h3.5 l-0.9 6.5 6.1 -8.9 h-3.6 z"/></svg>
+      </div>
+      <div class="big up2">Voici <span class="grad glow">Stidia</span></div>
+    </div>
+
+    <!-- 4 · CE QUE ÇA FAIT -->
+    <div class="scene" data-dur="5400">
+      <div class="kicker up" style="margin-bottom:3vh">l'ia qui crée tes tiktok</div>
+      <div class="chips">
+        <div class="chip"><span class="ic">📝</span> Scripts complets</div>
+        <div class="chip"><span class="ic">⚡</span> Accroches virales</div>
+        <div class="chip"><span class="ic">#️⃣</span> Hashtags qui percent</div>
+        <div class="chip"><span class="ic">🎵</span> Sons tendance</div>
+        <div class="chip"><span class="ic">🎬</span> De vraies vidéos</div>
+      </div>
+    </div>
+
+    <!-- 5 · COMMENT -->
+    <div class="scene" data-dur="4200">
+      <div class="mid up">Tu tapes ton idée 💬</div>
+      <div class="mid up2" style="margin-top:2vh">L'IA fait <span class="grad glow">tout</span> le reste ⚡</div>
+      <div class="sub up3">…en <b>30 secondes</b>.</div>
+    </div>
+
+    <!-- 6 · CTA -->
+    <div class="scene" data-dur="4600">
+      <div class="kicker up">100% gratuit · dans ton navigateur</div>
+      <div class="big up2">Deviens <span class="grad glow">viral</span></div>
+      <div class="cta-btn">Installe Stidia</div>
+      <div class="hand">👇</div>
+    </div>
+
+    <div class="mark">
+      <span class="dot"><svg viewBox="0 0 24 24"><path d="M13.6 4.4 L7.7 13.1 h3.5 l-0.9 6.5 6.1 -8.9 h-3.6 z"/></svg></span>
+      Stidia
+    </div>
+
+    <button class="replay" id="replay">↻ Rejouer</button>
+  </div>
+
+<script>
+(function(){
+  // Étoiles
+  const colors=['#A855F7','#EC4899','#D946EF','#F472B6','#C026D3','#E879F9'];
+  const stars=document.getElementById('stars');
+  for(let i=0;i<48;i++){
+    const s=document.createElement('span');s.className='star';
+    const sz=1+Math.random()*3.5;
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;`
+      +`background:${colors[i%colors.length]};box-shadow:0 0 ${sz*2.6}px ${colors[i%colors.length]};`
+      +`animation-duration:${(2.5+Math.random()*4).toFixed(2)}s;animation-delay:${(Math.random()*4).toFixed(2)}s`;
+    stars.appendChild(s);
+  }
+
+  const scenes=[...document.querySelectorAll('.scene')];
+  const bar=document.getElementById('bar');
+  const replay=document.getElementById('replay');
+  const total=scenes.reduce((a,s)=>a+ +s.dataset.dur,0);
+  let idx=0, timers=[];
+
+  function show(i){
+    scenes.forEach(s=>s.classList.remove('on','out'));
+    const sc=scenes[i];sc.classList.add('on');
+    const dur=+sc.dataset.dur;
+    timers.push(setTimeout(()=>sc.classList.add('out'), dur-350));
+    timers.push(setTimeout(()=>{
+      if(i+1<scenes.length){ idx=i+1; show(idx); }
+      else { replay.classList.add('show'); }
+    }, dur));
+  }
+
+  function play(){
+    timers.forEach(clearTimeout); timers=[];
+    replay.classList.remove('show');
+    scenes.forEach(s=>s.classList.remove('on','out'));
+    idx=0;
+    // Barre de progression pilotée en CSS (fiable même hors focus)
+    bar.style.transition='none'; bar.style.width='0';
+    requestAnimationFrame(()=>{ bar.style.transition='width '+total+'ms linear'; bar.style.width='100%'; });
+    show(0);
+  }
+  replay.addEventListener('click',play);
+  play();
+})();
+</script>
+</body>
+</html>
