@@ -415,9 +415,10 @@ main { display: block; }
 .reveal.in { opacity: 1; transform: none; }
 
 /* ─── Interactions avancées (souris) ──────────────────────────────────────────── */
-/* Inclinaison 3D + halo lumineux qui suit le curseur sur les cartes et étapes */
-.card, .step { transform-style: preserve-3d; will-change: transform; }
-.card::after, .step::after {
+/* Inclinaison 3D + halo lumineux qui suit le curseur (cartes, étapes, stats, CTA, FAQ) */
+.card, .step, .stats__item, .cta, .faq__item { transform-style: preserve-3d; will-change: transform; }
+.stats__item, .faq__item { position: relative; }
+.card::after, .step::after, .stats__item::after, .cta::after, .faq__item::after {
   content: "";
   position: absolute; inset: 0;
   border-radius: inherit;
@@ -427,10 +428,10 @@ main { display: block; }
   pointer-events: none;
   z-index: 1;
 }
-.card.tilt::after, .step.tilt::after,
-.card:hover::after, .step:hover::after { opacity: 1; }
-.card > *, .step > * { position: relative; z-index: 2; }
-.card.tilt, .step.tilt { transition: box-shadow .25s var(--ease); box-shadow: 0 26px 60px -20px rgba(124, 58, 237, .6); }
+.card.tilt::after, .step.tilt::after, .stats__item.tilt::after, .cta.tilt::after, .faq__item.tilt::after,
+.card:hover::after, .step:hover::after, .stats__item:hover::after, .faq__item:hover::after { opacity: 1; }
+.card > *, .step > *, .stats__item > *, .cta > *, .faq__item > * { position: relative; z-index: 2; }
+.card.tilt, .step.tilt, .stats__item.tilt, .faq__item.tilt { transition: box-shadow .25s var(--ease); box-shadow: 0 26px 60px -20px rgba(124, 58, 237, .6); }
 
 /* Reflet qui balaie la carte au survol */
 .card::before { transition: opacity .3s var(--ease), transform .6s var(--ease); }

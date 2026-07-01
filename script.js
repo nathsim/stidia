@@ -171,30 +171,37 @@
   const fine = window.matchMedia('(pointer:fine)').matches;
   if (fine) {
 
-    /* ─── Inclinaison 3D + halo qui suit le curseur (cartes & étapes) ──────── */
-    const tiltEls = document.querySelectorAll('.card, .step');
-    tiltEls.forEach((el) => {
-      let raf = null, rx = 0, ry = 0, gx = 50, gy = 50;
-      const apply = () => {
-        raf = null;
-        el.style.transform = `perspective(760px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
-        el.style.setProperty('--mx', gx + '%');
-        el.style.setProperty('--my', gy + '%');
-      };
-      el.addEventListener('pointerenter', () => el.classList.add('tilt'));
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width;   // 0 → 1
-        const py = (e.clientY - r.top) / r.height;   // 0 → 1
-        ry = (px - 0.5) * 12;   // rotation horizontale
-        rx = (0.5 - py) * 12;   // rotation verticale
-        gx = px * 100; gy = py * 100;
-        if (!raf) raf = requestAnimationFrame(apply);
-      });
-      el.addEventListener('pointerleave', () => {
-        if (raf) { cancelAnimationFrame(raf); raf = null; }
-        el.classList.remove('tilt');
-        el.style.transform = '';
+    /* ─── Inclinaison 3D + halo qui suit le curseur ────────────────────────── */
+    /* Intensité douce pour les grands blocs (CTA, FAQ), plus marquée pour les cartes */
+    const tiltGroups = [
+      { sel: '.card, .step, .stats__item', factor: 12, lift: 6, persp: 760 },
+      { sel: '.faq__item',                 factor: 6,  lift: 2, persp: 1000 },
+      { sel: '.cta',                       factor: 5,  lift: 4, persp: 1200 },
+    ];
+    tiltGroups.forEach((g) => {
+      document.querySelectorAll(g.sel).forEach((el) => {
+        let raf = null, rx = 0, ry = 0, gx = 50, gy = 50;
+        const apply = () => {
+          raf = null;
+          el.style.transform = `perspective(${g.persp}px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-${g.lift}px)`;
+          el.style.setProperty('--mx', gx + '%');
+          el.style.setProperty('--my', gy + '%');
+        };
+        el.addEventListener('pointerenter', () => el.classList.add('tilt'));
+        el.addEventListener('pointermove', (e) => {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width;   // 0 → 1
+          const py = (e.clientY - r.top) / r.height;   // 0 → 1
+          ry = (px - 0.5) * g.factor;   // rotation horizontale
+          rx = (0.5 - py) * g.factor;   // rotation verticale
+          gx = px * 100; gy = py * 100;
+          if (!raf) raf = requestAnimationFrame(apply);
+        });
+        el.addEventListener('pointerleave', () => {
+          if (raf) { cancelAnimationFrame(raf); raf = null; }
+          el.classList.remove('tilt');
+          el.style.transform = '';
+        });
       });
     });
 
