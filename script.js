@@ -40,31 +40,48 @@
   }
   generateStars();
 
-  /* ─── Parallaxe souris (throttlé via rAF) ────────────────────────────────── */
-  if (bg && !reduceMotion && window.matchMedia('(pointer:fine)').matches) {
+  /* ─── Fond animé EN CONTINU + réaction à la souris ───────────────────────── */
+  /* Le fond dérive tout seul en permanence (mouvement ambiant sinusoïdal) et
+     répond en plus à la souris. Une seule boucle rAF pilote chaque image. */
+  if (bg && !reduceMotion) {
     const layers = Array.prototype.slice.call(bg.querySelectorAll('.bg-3d__layer'));
-    let mx = 0, my = 0, raf = null;
+    const fine   = window.matchMedia('(pointer:fine)').matches;
 
-    const apply = () => {
-      raf = null;
+    let tmx = 0, tmy = 0;   // cible visée par la souris (-1 → 1)
+    let cmx = 0, cmy = 0;   // valeur lissée courante
+
+    if (fine) {
+      window.addEventListener('mousemove', (e) => {
+        tmx = (e.clientX / window.innerWidth  - 0.5) * 2;
+        tmy = (e.clientY / window.innerHeight - 0.5) * 2;
+      }, { passive: true });
+      window.addEventListener('mouseleave', () => { tmx = 0; tmy = 0; });
+    }
+
+    const t0 = performance.now();
+    const loop = (now) => {
+      const s = (now - t0) / 1000; // secondes écoulées
+
+      // Lissage doux vers la cible souris
+      cmx += (tmx - cmx) * 0.06;
+      cmy += (tmy - cmy) * 0.06;
+
+      // Mouvement ambiant permanent (sinus/cosinus déphasés)
+      const ax = Math.sin(s * 0.25) * 0.42 + Math.cos(s * 0.13) * 0.18;
+      const ay = Math.cos(s * 0.21) * 0.36 + Math.sin(s * 0.17) * 0.15;
+
+      const ox = cmx + ax; // décalage total X (souris + ambiant)
+      const oy = cmy + ay; // décalage total Y
+
       for (const layer of layers) {
         const depth = parseFloat(layer.dataset.depth) || 20;
-        layer.style.transform = `translate3d(${mx * depth * 1.4}px, ${my * depth * 1.4}px, 0)`;
+        layer.style.transform = `translate3d(${ox * depth * 1.4}px, ${oy * depth * 1.4}px, 0)`;
       }
-      bg.style.transform = `rotateY(${mx * 11}deg) rotateX(${-my * 11}deg)`;
+      bg.style.transform = `rotateY(${ox * 8}deg) rotateX(${-oy * 8}deg)`;
+
+      requestAnimationFrame(loop);
     };
-
-    window.addEventListener('mousemove', (e) => {
-      mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-      my = (e.clientY / window.innerHeight - 0.5) * 2;
-      if (!raf) raf = requestAnimationFrame(apply);
-    }, { passive: true });
-
-    window.addEventListener('mouseleave', () => {
-      mx = my = 0;
-      for (const layer of layers) layer.style.transform = '';
-      bg.style.transform = '';
-    });
+    requestAnimationFrame(loop);
   }
 
   /* ─── Navigation : ombre au scroll + menu mobile ─────────────────────────── */
