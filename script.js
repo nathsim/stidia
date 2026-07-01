@@ -42,8 +42,9 @@
 
   /* ─── Fond animé EN CONTINU + réaction à la souris ───────────────────────── */
   /* Le fond dérive tout seul en permanence (mouvement ambiant sinusoïdal) et
-     répond en plus à la souris. Une seule boucle rAF pilote chaque image. */
-  if (bg && !reduceMotion) {
+     répond en plus à la souris. Une seule boucle rAF pilote chaque image.
+     Effet signature du site : actif quel que soit le réglage système. */
+  if (bg) {
     const layers = Array.prototype.slice.call(bg.querySelectorAll('.bg-3d__layer'));
     const fine   = window.matchMedia('(pointer:fine)').matches;
 
@@ -168,7 +169,7 @@
      (désactivées sur tactile et si prefers-reduced-motion)
   ═══════════════════════════════════════════════════════════════════════════ */
   const fine = window.matchMedia('(pointer:fine)').matches;
-  if (fine && !reduceMotion) {
+  if (fine) {
 
     /* ─── Inclinaison 3D + halo qui suit le curseur (cartes & étapes) ──────── */
     const tiltEls = document.querySelectorAll('.card, .step');
