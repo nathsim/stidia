@@ -181,6 +181,7 @@
       Stidia
     </div>
 
+    <button class="mute" id="voice" aria-label="Changer de voix" title="Changer de voix" style="right:8.6vh">🎙️</button>
     <button class="mute" id="mute" aria-label="Couper le son" title="Couper/activer le son">🔊</button>
     <button class="replay" id="replay">↻ Rejouer</button>
 
@@ -216,10 +217,16 @@
 
   /* ─── Voix off (Web Speech API, gratuite, aucune clé nécessaire) ─────────── */
   const synth = window.speechSynthesis;
-  let frVoice = null;
+  let frVoices = [], voiceIdx = 0;
   function pickVoice(){
     const voices = synth ? synth.getVoices() : [];
-    frVoice = voices.find(v=>/fr[-_]FR/i.test(v.lang)) || voices.find(v=>/^fr/i.test(v.lang)) || null;
+    const fr = voices.filter(v=>/^fr/i.test(v.lang));
+    // Ordonne : voix "Google" / "Natural" (bien plus naturelles) d'abord, puis les autres.
+    fr.sort((a,b)=>{
+      const score = v => (/google|natural|neural|online/i.test(v.name) ? 0 : 1);
+      return score(a) - score(b);
+    });
+    frVoices = fr;
   }
   if(synth){
     pickVoice();
@@ -230,9 +237,9 @@
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR';
-    if(frVoice) u.voice = frVoice;
-    u.rate = 1.02;
-    u.pitch = 1;
+    if(frVoices.length) u.voice = frVoices[voiceIdx % frVoices.length];
+    u.rate = 1.18;   // débit un peu plus rapide, dynamique
+    u.pitch = 1.02;
     u.volume = 1;
     synth.speak(u);
   }
@@ -267,6 +274,14 @@
     muted=!muted;
     muteBtn.textContent = muted ? '🔇' : '🔊';
     if(muted && synth) synth.cancel();
+  });
+
+  // Change de voix française à la volée (relit la scène courante pour tester)
+  document.getElementById('voice').addEventListener('click',()=>{
+    if(!frVoices.length) return;
+    voiceIdx = (voiceIdx + 1) % frVoices.length;
+    const cur = document.querySelector('.scene.on');
+    if(cur) speak(cur.dataset.vo);
   });
 
   // La lecture démarre uniquement après un clic (nécessaire pour débloquer
