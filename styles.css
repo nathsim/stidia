@@ -78,6 +78,34 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 }
 :focus:not(:focus-visible) { outline: none; }
 
+/* Barre de progression de lecture (haut de page) */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px; width: 0;
+  z-index: 150;
+  background: var(--grad);
+  pointer-events: none;
+}
+
+/* Bouton retour en haut */
+.to-top {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  z-index: 120;
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--grad);
+  box-shadow: var(--shadow-glow);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+.to-top.show { opacity: 1; transform: none; }
+.to-top:hover { transform: translateY(-3px); }
+.to-top svg { width: 20px; height: 20px; }
+
 /* Lien d'évitement (accessibilité clavier) */
 .skip-link {
   position: fixed; top: -60px; left: 12px; z-index: 200;
@@ -243,7 +271,19 @@ main { display: block; }
 .pill__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-green); box-shadow: 0 0 0 0 rgba(16,185,129,.6); animation: pulse 2s infinite; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.55); } 70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
 
-.hero__title { margin-top: 22px; font-size: clamp(2.3rem, 6.5vw, 4.1rem); font-weight: 850; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+.hero__title { margin-top: 22px; font-size: clamp(2.3rem, 6.5vw, 4.1rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+/* Reflet animé qui balaie le mot en dégradé du titre */
+.hero__title .grad-text {
+  background: linear-gradient(110deg, #7C3AED 15%, #A855F7 30%, #F472B6 48%, #EC4899 60%, #A855F7 75%, #7C3AED 90%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: gradSweep 5.5s ease-in-out infinite;
+}
+@keyframes gradSweep {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
 .hero__sub { margin: 22px auto 0; max-width: 620px; font-size: clamp(1.02rem, 2.4vw, 1.22rem); color: var(--c-muted); }
 .hero__sub strong { color: var(--c-text); font-weight: 600; }
 
@@ -554,6 +594,15 @@ main { display: block; }
 }
 .faq__item[open] summary::after { transform: rotate(45deg); }
 .faq__item p { padding: 0 0 18px; color: var(--c-muted); font-size: .97rem; }
+.faq__item code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: .85em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid var(--c-border);
+  color: var(--c-pink-2);
+}
 
 /* ─── Pied de page ────────────────────────────────────────────────────────────── */
 .footer {

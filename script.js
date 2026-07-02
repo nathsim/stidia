@@ -94,15 +94,28 @@
     });
   }
 
-  /* ─── Navigation : ombre au scroll + menu mobile ─────────────────────────── */
+  /* ─── Navigation : ombre au scroll + progression + retour en haut ────────── */
   const nav = document.getElementById('nav');
+  const scrollBar = document.getElementById('scroll-progress');
+  const toTop = document.getElementById('to-top');
   let navRaf = null;
   const onScroll = () => {
     navRaf = null;
-    if (nav) nav.classList.toggle('scrolled', window.scrollY > 12);
+    const y = window.scrollY;
+    if (nav) nav.classList.toggle('scrolled', y > 12);
+    if (scrollBar) {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollBar.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
+    }
+    if (toTop) {
+      const show = y > 600;
+      if (show && toTop.hidden) toTop.hidden = false;
+      toTop.classList.toggle('show', show);
+    }
   };
   window.addEventListener('scroll', () => { if (!navRaf) navRaf = requestAnimationFrame(onScroll); }, { passive: true });
   onScroll();
+  if (toTop) toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));
 
   const burger = document.getElementById('nav-burger');
   const links  = document.querySelector('.nav__links');
