@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Politique de confidentialité — Stidia</title>
+<meta name="description" content="Politique de confidentialité de l'extension Stidia : données stockées localement, aucune revente." />
+<meta name="theme-color" content="#0D0D14" />
+<link rel="icon" href="logo.svg" type="image/svg+xml" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#E7E3F2;line-height:1.7;
+    background:linear-gradient(160deg,#141020,#0a0710);min-height:100vh;padding:48px 20px 80px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+  .brand__logo{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#7C3AED,#A855F7,#EC4899);box-shadow:0 10px 34px -8px rgba(124,58,237,.8)}
+  .brand__logo svg{width:22px;height:22px;fill:#fff}
+  .brand__name{font-weight:800;font-size:1.3rem}
+  h1{font-size:clamp(1.8rem,5vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+  .updated{color:#8F89A6;font-size:.9rem;margin-bottom:36px}
+  h2{font-size:1.15rem;font-weight:700;margin:30px 0 10px;color:#fff}
+  p,li{color:#C7C1DA;margin-bottom:10px}
+  ul{padding-left:22px;margin-bottom:10px}
+  strong{color:#fff}
+  a{color:#EC7FB8}
+  .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:22px 24px;margin:18px 0}
+  .back{display:inline-block;margin-top:34px;color:#fff;font-weight:600;text-decoration:none;
+    padding:11px 22px;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.6 4.4 L7.7 13.1 h3.5 l-0.9 6.5 6.1 -8.9 h-3.6 z"/></svg></span>
+      <span class="brand__name">Stidia</span>
+    </div>
+
+    <h1>Politique de confidentialité</h1>
+    <p class="updated">Dernière mise à jour : juillet 2026</p>
+
+    <div class="card">
+      <p><strong>En bref :</strong> Stidia stocke tout <strong>localement dans ton navigateur</strong>. Nous n'avons aucun serveur qui reçoit tes données, nous ne les revendons pas, et nous ne suivons pas ton activité.</p>
+    </div>
+
+    <h2>1. Données que Stidia enregistre</h2>
+    <p>L'extension enregistre, uniquement sur ton appareil (via <code>chrome.storage.local</code>) :</p>
+    <ul>
+      <li>ton identifiant et un <strong>mot de passe haché</strong> (jamais en clair) ;</li>
+      <li>tes clés d'API (Groq et Pexels) que tu fournis toi-même ;</li>
+      <li>tes préférences (modèle, langue) et ton historique de générations.</li>
+    </ul>
+    <p>Ces données ne quittent jamais ton navigateur et ne nous sont jamais transmises.</p>
+
+    <h2>2. Services tiers utilisés</h2>
+    <p>Quand tu génères du contenu, l'extension envoie ta demande directement, depuis ton navigateur, aux services que <strong>tu</strong> as configurés :</p>
+    <ul>
+      <li><strong>Groq</strong> (génération de texte) — <a href="https://groq.com/privacy-policy/" target="_blank" rel="noopener">politique de Groq</a> ;</li>
+      <li><strong>Pexels</strong> (clips vidéo libres de droits) — <a href="https://www.pexels.com/privacy-policy/" target="_blank" rel="noopener">politique de Pexels</a>.</li>
+    </ul>
+    <p>Ces appels utilisent tes propres clés API. Stidia ne s'intercale pas entre toi et ces services.</p>
+
+    <h2>3. Ce que Stidia ne fait pas</h2>
+    <ul>
+      <li>Aucune collecte analytique, aucun cookie de suivi.</li>
+      <li>Aucune revente ni partage de données à des tiers publicitaires.</li>
+      <li>Aucun accès à ton compte TikTok ni à tes messages.</li>
+    </ul>
+
+    <h2>4. Permissions du navigateur</h2>
+    <p>L'extension demande le minimum : <code>storage</code> (sauvegarde locale), <code>activeTab</code>/<code>scripting</code> (afficher le panneau sur TikTok), et l'accès réseau aux API Groq et Pexels. Elle n'agit que sur <code>tiktok.com</code>.</p>
+
+    <h2>5. Suppression de tes données</h2>
+    <p>Tu peux tout effacer à tout moment : bouton « Tout effacer » de l'historique, ou en supprimant l'extension (ce qui vide <code>chrome.storage.local</code>).</p>
+
+    <h2>6. Contact</h2>
+    <p>Pour toute question : <a href="https://nathsim.github.io/stidia/">nathsim.github.io/stidia</a>.</p>
+
+    <a class="back" href="/stidia/">← Retour au site</a>
+  </div>
+</body>
+</html>
