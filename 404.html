@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Page introuvable — Stidia</title>
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#0D0D14" />
+<link rel="icon" href="logo.svg" type="image/svg+xml" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#F4F2F8;
+    background:
+      radial-gradient(120% 80% at 80% -10%, rgba(124,58,237,.28), transparent 55%),
+      radial-gradient(110% 70% at 10% 15%, rgba(236,72,153,.2), transparent 55%),
+      linear-gradient(160deg,#160f22,#0a0710);
+  }
+  .logo{width:70px;height:70px;border-radius:18px;display:grid;place-items:center;margin:0 auto 26px;
+    background:linear-gradient(135deg,#7C3AED,#A855F7,#EC4899);box-shadow:0 12px 44px -8px rgba(124,58,237,.8)}
+  .logo svg{width:40px;height:40px;fill:#fff}
+  h1{font-size:clamp(3.4rem,12vw,6rem);font-weight:900;letter-spacing:-.03em;
+    background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  p{color:#B4AEC6;font-size:1.1rem;margin:10px 0 30px;max-width:420px}
+  a{display:inline-flex;align-items:center;gap:9px;font-weight:700;color:#fff;text-decoration:none;
+    padding:14px 28px;border-radius:99px;background:linear-gradient(135deg,#7C3AED,#A855F7,#EC4899);
+    box-shadow:0 14px 40px -6px rgba(236,72,153,.6);transition:transform .18s ease}
+  a:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+  <div>
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M13.6 4.4 L7.7 13.1 h3.5 l-0.9 6.5 6.1 -8.9 h-3.6 z"/></svg>
+    </div>
+    <h1>404</h1>
+    <p>Oups, cette page n'existe pas… mais ton prochain TikTok viral, si. 😉</p>
+    <a href="/stidia/">← Retour à l'accueil</a>
+  </div>
+</body>
+</html>
