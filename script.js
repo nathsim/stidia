@@ -153,6 +153,62 @@
     });
   }
 
+  /* ─── Démo vivante du mockup héro (frappe → générer → résultats, en boucle) ── */
+  const mockPrompt = document.getElementById('mock-prompt');
+  const mockGen    = document.getElementById('mock-gen');
+  const mockOut    = document.getElementById('mock-out');
+  if (mockPrompt && mockGen && mockOut) {
+    const mockup   = mockPrompt.closest('.mockup');
+    const chars    = Array.from(mockPrompt.textContent); // découpe par points de code (emoji sûrs)
+    const cards    = Array.from(mockOut.children);
+    let playing = false, visible = false;
+
+    mockup.classList.add('mockup--live');
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+    async function cycle() {
+      if (playing) return;
+      playing = true;
+      while (visible) {
+        cards.forEach(c => c.classList.remove('in'));
+        mockPrompt.textContent = '';
+        mockPrompt.classList.add('typing');
+        await wait(650);
+        for (let i = 0; i < chars.length && visible; i++) {
+          mockPrompt.textContent += chars[i];
+          await wait(32);
+        }
+        if (!visible) break;
+        await wait(420);
+        mockPrompt.classList.remove('typing');
+        mockGen.classList.add('pressed');
+        await wait(190);
+        mockGen.classList.remove('pressed');
+        await wait(680);
+        for (const c of cards) {
+          if (!visible) break;
+          c.classList.add('in');
+          await wait(430);
+        }
+        await wait(4200);
+      }
+      // Sortie propre : contenu complet affiché en statique
+      mockPrompt.classList.remove('typing');
+      mockPrompt.textContent = chars.join('');
+      cards.forEach(c => c.classList.add('in'));
+      playing = false;
+    }
+
+    let onScreen = true;
+    const startStop = () => { visible = onScreen && !document.hidden; if (visible) cycle(); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => { onScreen = es[0].isIntersecting; startStop(); }, { threshold: 0.25 }).observe(mockup);
+    } else {
+      startStop();
+    }
+    document.addEventListener('visibilitychange', startStop);
+  }
+
   /* ─── Révélation au scroll ───────────────────────────────────────────────── */
   const reveals = document.querySelectorAll('.reveal');
   if (reduceMotion || !('IntersectionObserver' in window)) {
