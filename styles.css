@@ -117,9 +117,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .bg-3d__glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(70px);
   opacity: .5;
   will-change: transform;
+  transform: translateZ(0);
 }
 .bg-3d__glow--1 { width: 460px; height: 460px; top: -80px; right: -60px; background: radial-gradient(circle, rgba(124,58,237,.55), transparent 70%); }
 .bg-3d__glow--2 { width: 520px; height: 520px; bottom: -120px; left: -80px; background: radial-gradient(circle, rgba(236,72,153,.4), transparent 70%); }
@@ -400,39 +401,65 @@ main { display: block; }
 .card p { color: var(--c-muted); font-size: .96rem; }
 
 /* ─── Étapes ──────────────────────────────────────────────────────────────────── */
-.steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; counter-reset: step; }
+/* Timeline verticale */
+.steps { list-style: none; max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 0; }
 .step {
   position: relative;
-  padding: 30px 24px;
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 20px;
+  padding: 0 0 34px 0;
+}
+.step:last-child { padding-bottom: 0; }
+/* Rail vertical qui relie les numéros */
+.step::before {
+  content: "";
+  position: absolute;
+  left: 25px; top: 46px; bottom: -4px;
+  width: 2px;
+  background: linear-gradient(var(--c-border-2), transparent);
+}
+.step:last-child::before { display: none; }
+.step__num {
+  display: grid; place-items: center;
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  font-weight: 800; font-size: 1.3rem;
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+  position: relative; z-index: 1;
+}
+.step h3 { font-size: 1.18rem; margin: 6px 0 8px; }
+.step p { color: var(--c-muted); font-size: .98rem; }
+
+/* ─── Modules ─────────────────────────────────────────────────────────────────── */
+/* Modules groupés par famille */
+.mod-groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
+.mod-group {
+  padding: 22px 20px;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--r-lg);
+  box-shadow: 0 6px 22px -14px rgba(0, 0, 0, .7);
 }
-.step__num {
-  display: grid; place-items: center;
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  font-weight: 800; font-size: 1.2rem;
-  background: var(--grad-soft);
-  border: 1px solid var(--c-border-2);
-  color: var(--c-pink-2);
-  margin-bottom: 16px;
-}
-.step h3 { font-size: 1.14rem; margin-bottom: 8px; }
-.step p { color: var(--c-muted); font-size: .96rem; }
+.mod-group__title { font-size: 1.02rem; font-weight: 700; margin-bottom: 16px; letter-spacing: -.01em; }
 
-/* ─── Modules ─────────────────────────────────────────────────────────────────── */
-.modules { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.modules { display: flex; flex-wrap: wrap; gap: 10px; }
 .mod {
-  padding: 11px 18px;
+  padding: 9px 15px;
   border-radius: 999px;
-  font-size: .92rem; font-weight: 600;
-  background: var(--c-surface);
+  font-size: .88rem; font-weight: 600;
+  background: rgba(255,255,255,.04);
   border: 1px solid var(--c-border);
-  color: var(--c-text);
-  transition: transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+  color: var(--c-muted);
+  transition: transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease), color .18s var(--ease);
 }
-.mod:hover { transform: translateY(-3px); border-color: var(--c-border-2); background: var(--grad-soft); }
+.mod:hover { transform: translateY(-3px); border-color: var(--c-border-2); background: var(--grad-soft); color: var(--c-text); }
+/* Modules clés : mis en avant */
+.mod--key { color: var(--c-text); background: var(--grad-soft); border-color: var(--c-border-2); }
+
+@media (max-width: 860px) { .mod-groups { grid-template-columns: 1fr; } }
 
 /* ─── CTA ─────────────────────────────────────────────────────────────────────── */
 .cta {
@@ -550,7 +577,7 @@ main { display: block; }
 /* will-change activé seulement pendant l'interaction (perf : évite 40+ couches permanentes) */
 .tilt { will-change: transform; }
 .stats__item, .faq__item { position: relative; }
-.card::after, .step::after, .stats__item::after, .cta::after, .faq__item::after {
+.card::after, .stats__item::after, .cta::after, .faq__item::after {
   content: "";
   position: absolute; inset: 0;
   border-radius: inherit;
@@ -560,10 +587,10 @@ main { display: block; }
   pointer-events: none;
   z-index: 1;
 }
-.card.tilt::after, .step.tilt::after, .stats__item.tilt::after, .cta.tilt::after, .faq__item.tilt::after,
-.card:hover::after, .step:hover::after, .stats__item:hover::after, .faq__item:hover::after { opacity: 1; }
-.card > *, .step > *, .stats__item > *, .cta > *, .faq__item > * { position: relative; z-index: 2; }
-.card.tilt, .step.tilt, .stats__item.tilt, .faq__item.tilt { transition: box-shadow .25s var(--ease); box-shadow: 0 26px 60px -20px rgba(124, 58, 237, .6); }
+.card.tilt::after, .stats__item.tilt::after, .cta.tilt::after, .faq__item.tilt::after,
+.card:hover::after, .stats__item:hover::after, .faq__item:hover::after { opacity: 1; }
+.card > *, .stats__item > *, .cta > *, .faq__item > * { position: relative; z-index: 2; }
+.card.tilt, .stats__item.tilt, .faq__item.tilt { transition: box-shadow .25s var(--ease); box-shadow: 0 26px 60px -20px rgba(124, 58, 237, .6); }
 
 /* Reflet qui balaie la carte au survol */
 .card::before { transition: opacity .3s var(--ease), transform .6s var(--ease); }

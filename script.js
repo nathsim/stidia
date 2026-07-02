@@ -203,7 +203,7 @@
     /* ─── Inclinaison 3D + halo qui suit le curseur ────────────────────────── */
     /* Intensité douce pour les grands blocs (CTA, FAQ), plus marquée pour les cartes */
     const tiltGroups = [
-      { sel: '.card, .step, .stats__item', factor: 12, lift: 6, persp: 760 },
+      { sel: '.card, .stats__item', factor: 12, lift: 6, persp: 760 },
       { sel: '.faq__item',                 factor: 6,  lift: 2, persp: 1000 },
       { sel: '.cta',                       factor: 5,  lift: 4, persp: 1200 },
     ];
