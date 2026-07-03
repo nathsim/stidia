@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panel Staff — Stidia</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0D0D14" />
+<link rel="icon" href="logo.svg" type="image/svg+xml" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    min-height:100vh;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#F4F2F8;
+    background:
+      radial-gradient(120% 80% at 80% -10%, rgba(124,58,237,.25), transparent 55%),
+      radial-gradient(110% 70% at 10% 15%, rgba(236,72,153,.18), transparent 55%),
+      linear-gradient(160deg,#160f22,#0a0710);
+    padding:28px 18px 60px;
+  }
+  .wrap{max-width:980px;margin:0 auto}
+  a{color:#EC7FB8}
+  code{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:6px}
+
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+  .brand__logo{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#7C3AED,#A855F7,#EC4899);box-shadow:0 10px 34px -8px rgba(124,58,237,.8)}
+  .brand__logo svg{width:22px;height:22px;fill:#fff}
+  .brand__name{font-weight:800;font-size:1.25rem}
+  .brand__page{margin-left:6px;padding:4px 12px;border-radius:99px;font-size:.72rem;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;color:#0D0D14;background:linear-gradient(135deg,#FDE68A,#F59E0B)}
+  .brand a.back{margin-left:auto;font-size:.86rem;color:#B4AEC6;text-decoration:none}
+  .brand a.back:hover{color:#fff}
+
+  .panel{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);border-radius:20px;
+    padding:28px;box-shadow:0 20px 50px -20px rgba(0,0,0,.6);margin-bottom:20px}
+  .center{text-align:center}
+  h1{font-size:1.4rem;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+  .sub{color:#B4AEC6;font-size:.92rem}
+
+  .field{margin:16px 0;text-align:left;max-width:360px;margin-left:auto;margin-right:auto}
+  .field input,.field select{width:100%;padding:12px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);color:#fff;font-size:.95rem;font-family:inherit}
+  .field input:focus,.field select:focus{outline:none;border-color:#A855F7;box-shadow:0 0 0 3px rgba(124,58,237,.25)}
+  .error{display:none;margin:4px 0 12px;padding:10px 14px;border-radius:10px;font-size:.86rem;
+    color:#FCA5A5;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35)}
+  .error.show{display:block}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:#fff;
+    padding:11px 22px;border-radius:99px;border:none;cursor:pointer;font-size:.9rem;font-family:inherit;
+    background:linear-gradient(135deg,#7C3AED,#A855F7,#EC4899);box-shadow:0 12px 32px -6px rgba(236,72,153,.5);
+    transition:transform .15s ease}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);box-shadow:none}
+  .btn--danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);box-shadow:none;color:#FCA5A5}
+  .btn--sm{padding:7px 14px;font-size:.8rem}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+  h2{font-size:1.05rem;font-weight:700;margin-bottom:4px}
+  .section-sub{color:#8F89A6;font-size:.85rem;margin-bottom:18px}
+
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th{text-align:left;color:#8F89A6;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;
+    padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
+  td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .plan-select{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:.82rem}
+  .keydot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+  .keydot--ok{background:#6EE7B7}
+  .keydot--no{background:#F87171}
+  .empty-row td{text-align:center;color:#8F89A6;padding:26px}
+
+  .gen-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px}
+  .gen-row .field{margin:0;max-width:none;flex:1;min-width:140px}
+  .codes-out{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .code-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 12px;flex-wrap:wrap}
+  .code-item code{font-size:.86rem;flex:1;min-width:200px}
+  .tier-tag{font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:99px}
+  .tier-CREA{color:#fff;background:linear-gradient(135deg,#7C3AED,#A855F7)}
+  .tier-VIRAL{color:#fff;background:linear-gradient(135deg,#7C3AED,#EC4899)}
+  .tier-STUDIO{color:#0D0D14;background:linear-gradient(135deg,#FDE68A,#F59E0B)}
+
+  .ledger-item{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:10px;align-items:center;
+    background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+  .ledger-item code{font-size:.82rem}
+  .ledger-item input{padding:6px 9px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.82rem;width:100%}
+  .ledger-status{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:99px}
+  .status-issued{color:#FCD34D;background:rgba(245,158,11,.15)}
+  .status-used{color:#6EE7B7;background:rgba(16,185,129,.15)}
+  @media(max-width:720px){.ledger-item{grid-template-columns:1fr;}}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    padding:11px 20px;border-radius:99px;font-size:.86rem;font-weight:600;color:#fff;
+    background:#1c1424;border:1px solid rgba(255,255,255,.15);opacity:0;transition:transform .3s ease,opacity .3s ease;z-index:50}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .toast.success{border-color:rgba(16,185,129,.4)}
+  .toast.error{border-color:rgba(239,68,68,.4)}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <span class="brand__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.6 4.4 L7.7 13.1 h3.5 l-0.9 6.5 6.1 -8.9 h-3.6 z"/></svg></span>
+    <span class="brand__name">Stidia</span>
+    <span class="brand__page">Staff</span>
+    <a class="back" href="/stidia/">← Retour au site</a>
+  </div>
+
+  <!-- Porte d'entrée : passphrase -->
+  <div class="panel center" id="st-gate">
+    <h1>🔒 Accès restreint</h1>
+    <p class="sub">Cette page est réservée. Entre la clé administrateur.</p>
+    <div class="field">
+      <input id="gate-key" type="password" placeholder="Clé administrateur" autocomplete="off" />
+    </div>
+    <div class="error" id="gate-error"></div>
+    <button class="btn" id="gate-btn" type="button">Déverrouiller</button>
+  </div>
+
+  <!-- Panel -->
+  <div id="st-panel" hidden>
+    <div class="panel">
+      <div class="toolbar" style="justify-content:space-between;align-items:center">
+        <div>
+          <h1 style="margin-bottom:2px">Panel Staff</h1>
+          <p class="sub" id="ext-status">Vérification de l'extension…</p>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="lock-btn" type="button">🔒 Verrouiller</button>
+      </div>
+    </div>
+
+    <!-- Comptes locaux -->
+    <div class="panel">
+      <h2>👤 Comptes de ce navigateur</h2>
+      <p class="section-sub">Comptes Stidia enregistrés dans l'extension installée ici. Change une offre sans code, ou supprime un compte de test.</p>
+      <div class="toolbar"><button class="btn btn--ghost btn--sm" id="acc-refresh" type="button">↻ Actualiser</button></div>
+      <table>
+        <thead><tr><th>Compte</th><th>Offre</th><th>Clés</th><th>Générations</th><th>Depuis</th><th></th></tr></thead>
+        <tbody id="acc-body"><tr class="empty-row"><td colspan="6">Chargement…</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Générateur de codes -->
+    <div class="panel">
+      <h2>🎫 Générateur de codes d'activation</h2>
+      <p class="section-sub">Génère des codes STIDIA-* valides (même algorithme que l'extension). Note à qui tu les vends dans le registre ci-dessous.</p>
+      <div class="gen-row">
+        <div class="field">
+          <select id="gen-tier">
+            <option value="CREA">Créateur — 4,99 €</option>
+            <option value="VIRAL">Viral — 9,99 €</option>
+            <option value="STUDIO">Studio — 24,99 €</option>
+          </select>
+        </div>
+        <div class="field" style="max-width:100px">
+          <input id="gen-qty" type="number" min="1" max="20" value="1" />
+        </div>
+        <button class="btn" id="gen-btn" type="button">Générer</button>
+      </div>
+      <div class="codes-out" id="gen-out"></div>
+
+      <h2 style="margin-top:8px">📒 Registre des codes émis</h2>
+      <p class="section-sub">Sauvegardé dans ce navigateur (localStorage). Exporte régulièrement pour ne rien perdre.</p>
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" id="ledger-export" type="button">⬇ Exporter (.json)</button>
+        <label class="btn btn--ghost btn--sm" style="cursor:pointer">
+          ⬆ Importer
+          <input type="file" id="ledger-import" accept="application/json" hidden />
+        </label>
+      </div>
+      <div id="ledger-list"></div>
+      <p class="section-sub" id="ledger-empty">Aucun code dans le registre pour l'instant.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ═══════════════════════ Communication avec l'extension ═══════════════════
+  var PAGE = 'stidia-dashboard', EXT = 'stidia-extension';
+  var pending = {}, seq = 0, extReady = false;
+  var adminKey = sessionStorage.getItem('stidia_admin_key') || null;
+
+  function send(action, payload) {
+    return new Promise(function (resolve) {
+      var id = 'r' + (++seq);
+      pending[id] = resolve;
+      window.postMessage({ source: PAGE, action: action, payload: payload, reqId: id }, window.location.origin);
+      setTimeout(function () {
+        if (pending[id]) { pending[id]({ success: false, error: 'Pas de réponse de l\'extension.' }); delete pending[id]; }
+      }, 6000);
+    });
+  }
+  window.addEventListener('message', function (e) {
+    if (e.source !== window) return;
+    var d = e.data;
+    if (!d || d.source !== EXT) return;
+    if (d.ready) extReady = true;
+    if (d.reqId && pending[d.reqId]) { pending[d.reqId](d.response); delete pending[d.reqId]; }
+  });
+
+  function toast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.className = 'toast'; }, 2600);
+  }
+
+  // ═══════════════════════ Porte d'entrée (passphrase) ═══════════════════════
+  var gate = document.getElementById('st-gate'), panel = document.getElementById('st-panel');
+  var gateKeyInput = document.getElementById('gate-key'), gateErr = document.getElementById('gate-error');
+
+  function tryUnlock(key) {
+    // On ne peut valider la clé que via une vraie action de l'extension (ADMIN_LIST_ACCOUNTS)
+    return send('ADMIN_LIST_ACCOUNTS', { adminKey: key }).then(function (res) {
+      if (res && res.success) {
+        adminKey = key;
+        sessionStorage.setItem('stidia_admin_key', key);
+        gate.hidden = true; panel.hidden = false;
+        renderAccounts(res.accounts);
+        return true;
+      }
+      gateErr.textContent = (res && res.error) || 'Clé refusée.';
+      gateErr.classList.add('show');
+      return false;
+    });
+  }
+
+  document.getElementById('gate-btn').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Vérification…';
+    tryUnlock(gateKeyInput.value.trim()).then(function () {
+      btn.disabled = false; btn.textContent = 'Déverrouiller';
+    });
+  });
+  gateKeyInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('gate-btn').click(); });
+
+  document.getElementById('lock-btn').addEventListener('click', function () {
+    adminKey = null;
+    sessionStorage.removeItem('stidia_admin_key');
+    gateKeyInput.value = '';
+    panel.hidden = true; gate.hidden = false;
+  });
+
+  // ═══════════════════════ Détection de l'extension ═══════════════════════════
+  var statusEl = document.getElementById('ext-status');
+  var tries = 0;
+  var probe = setInterval(function () {
+    if (extReady) {
+      clearInterval(probe);
+      statusEl.textContent = '✓ Extension connectée';
+      if (adminKey) tryUnlock(adminKey); // reprise de session
+      return;
+    }
+    send('DASH_PING', {});
+    if (++tries > 8) {
+      clearInterval(probe);
+      statusEl.textContent = '✗ Extension introuvable — installe/recharge-la puis actualise cette page.';
+      gateErr.textContent = 'Extension introuvable.'; gateErr.classList.add('show');
+    }
+  }, 300);
+
+  // ═══════════════════════ Comptes locaux ═══════════════════════════════════
+  var PLAN_OPTIONS = ['free', 'creator', 'viral', 'studio'];
+  var PLAN_LABELS  = { free: 'Découverte', creator: 'Créateur', viral: 'Viral', studio: 'Studio' };
+
+  function fmtDate(iso) {
+    try { return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }); }
+    catch (e) { return '—'; }
+  }
+
+  function renderAccounts(accounts) {
+    var body = document.getElementById('acc-body');
+    if (!accounts || !accounts.length) {
+      body.innerHTML = '<tr class="empty-row"><td colspan="6">Aucun compte dans ce navigateur.</td></tr>';
+      return;
+    }
+    body.innerHTML = '';
+    accounts.forEach(function (a) {
+      var tr = document.createElement('tr');
+
+      var tdUser = document.createElement('td'); tdUser.textContent = '@' + a.username;
+      tr.appendChild(tdUser);
+
+      var tdPlan = document.createElement('td');
+      var sel = document.createElement('select'); sel.className = 'plan-select';
+      PLAN_OPTIONS.forEach(function (p) {
+        var o = document.createElement('option'); o.value = p; o.textContent = PLAN_LABELS[p];
+        if (p === a.plan) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', function () {
+        send('ADMIN_SET_PLAN', { adminKey: adminKey, username: a.username, plan: sel.value }).then(function (res) {
+          if (res && res.success) toast('Offre de @' + a.username + ' → ' + PLAN_LABELS[sel.value], 'success');
+          else toast((res && res.error) || 'Échec', 'error');
+        });
+      });
+      tdPlan.appendChild(sel);
+      tr.appendChild(tdPlan);
+
+      var tdKeys = document.createElement('td');
+      tdKeys.innerHTML =
+        '<span class="keydot ' + (a.hasGroqKey ? 'keydot--ok' : 'keydot--no') + '"></span>Groq &nbsp;' +
+        '<span class="keydot ' + (a.hasPexelsKey ? 'keydot--ok' : 'keydot--no') + '"></span>Pexels';
+      tr.appendChild(tdKeys);
+
+      var tdHist = document.createElement('td'); tdHist.textContent = a.historyCount;
+      tr.appendChild(tdHist);
+
+      var tdDate = document.createElement('td'); tdDate.textContent = fmtDate(a.createdAt);
+      tr.appendChild(tdDate);
+
+      var tdDel = document.createElement('td');
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn btn--danger btn--sm'; delBtn.type = 'button'; delBtn.textContent = 'Supprimer';
+      delBtn.addEventListener('click', function () {
+        if (!confirm('Supprimer definitivement le compte @' + a.username + ' et son historique ?')) return;
+        send('ADMIN_DELETE_ACCOUNT', { adminKey: adminKey, username: a.username }).then(function (res) {
+          if (res && res.success) { toast('Compte @' + a.username + ' supprimé', 'success'); refreshAccounts(); }
+          else toast((res && res.error) || 'Échec', 'error');
+        });
+      });
+      tdDel.appendChild(delBtn);
+      tr.appendChild(tdDel);
+
+      body.appendChild(tr);
+    });
+  }
+
+  function refreshAccounts() {
+    send('ADMIN_LIST_ACCOUNTS', { adminKey: adminKey }).then(function (res) {
+      if (res && res.success) renderAccounts(res.accounts);
+      else toast((res && res.error) || 'Échec du chargement', 'error');
+    });
+  }
+  document.getElementById('acc-refresh').addEventListener('click', refreshAccounts);
+
+  // ═══════════════════════ Générateur de codes ═══════════════════════════════
+  var ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function checksum(body) {
+    var sum = 0;
+    for (var i = 0; i < body.length; i++) sum += body.charCodeAt(i) * (i + 1);
+    return ALPHABET[sum % 36];
+  }
+  function randGroup(len) {
+    var s = '';
+    for (var i = 0; i < len; i++) s += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+    return s;
+  }
+  function makeCode(tier) {
+    var body = 'STIDIA-' + tier + '-' + randGroup(4) + '-' + randGroup(3);
+    return body + checksum(body);
+  }
+
+  document.getElementById('gen-btn').addEventListener('click', function () {
+    var tier = document.getElementById('gen-tier').value;
+    var qty  = Math.max(1, Math.min(20, parseInt(document.getElementById('gen-qty').value, 10) || 1));
+    var out  = document.getElementById('gen-out');
+    out.innerHTML = '';
+    for (var i = 0; i < qty; i++) {
+      var code = makeCode(tier);
+      var row = document.createElement('div'); row.className = 'code-item';
+      row.innerHTML =
+        '<span class="tier-tag tier-' + tier + '">' + tier + '</span>' +
+        '<code>' + code + '</code>' +
+        '<button class="btn btn--ghost btn--sm" type="button" data-copy="' + code + '">Copier</button>' +
+        '<button class="btn btn--sm" type="button" data-add="' + code + '" data-tier="' + tier + '">+ Registre</button>';
+      out.appendChild(row);
+    }
+    out.querySelectorAll('[data-copy]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        navigator.clipboard.writeText(b.dataset.copy).then(function () { toast('Code copié', 'success'); });
+      });
+    });
+    out.querySelectorAll('[data-add]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        addToLedger(b.dataset.add, b.dataset.tier);
+        toast('Ajouté au registre', 'success');
+      });
+    });
+  });
+
+  // ═══════════════════════ Registre (localStorage) ════════════════════════════
+  var LEDGER_KEY = 'stidia_admin_ledger';
+  function loadLedger() { try { return JSON.parse(localStorage.getItem(LEDGER_KEY) || '[]'); } catch (e) { return []; } }
+  function saveLedger(l) { localStorage.setItem(LEDGER_KEY, JSON.stringify(l)); renderLedger(); }
+  function addToLedger(code, tier) {
+    var l = loadLedger();
+    l.unshift({ code: code, tier: tier, note: '', status: 'issued', addedAt: new Date().toISOString() });
+    saveLedger(l);
+  }
+
+  function renderLedger() {
+    var list = loadLedger();
+    var container = document.getElementById('ledger-list');
+    var empty = document.getElementById('ledger-empty');
+    container.innerHTML = '';
+    empty.hidden = list.length > 0;
+    list.forEach(function (item, idx) {
+      var row = document.createElement('div'); row.className = 'ledger-item';
+
+      var tag = document.createElement('span');
+      tag.className = 'tier-tag tier-' + item.tier; tag.textContent = item.tier;
+      row.appendChild(tag);
+
+      var codeWrap = document.createElement('div');
+      codeWrap.innerHTML = '<code>' + item.code + '</code>';
+      row.appendChild(codeWrap);
+
+      var noteInput = document.createElement('input');
+      noteInput.placeholder = 'Note (client, email…)';
+      noteInput.value = item.note || '';
+      noteInput.addEventListener('change', function () {
+        var l = loadLedger(); l[idx].note = noteInput.value; saveLedger(l);
+      });
+      row.appendChild(noteInput);
+
+      var statusBtn = document.createElement('button');
+      statusBtn.type = 'button';
+      statusBtn.className = 'ledger-status ' + (item.status === 'used' ? 'status-used' : 'status-issued');
+      statusBtn.textContent = item.status === 'used' ? '✓ Activé' : '⏳ Émis';
+      statusBtn.addEventListener('click', function () {
+        var l = loadLedger(); l[idx].status = l[idx].status === 'used' ? 'issued' : 'used'; saveLedger(l);
+      });
+      row.appendChild(statusBtn);
+
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button'; delBtn.className = 'btn btn--danger btn--sm'; delBtn.textContent = '✕';
+      delBtn.addEventListener('click', function () {
+        var l = loadLedger(); l.splice(idx, 1); saveLedger(l);
+      });
+      row.appendChild(delBtn);
+
+      container.appendChild(row);
+    });
+  }
+
+  document.getElementById('ledger-export').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(loadLedger(), null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'stidia-registre-codes.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  });
+  document.getElementById('ledger-import').addEventListener('change', function (e) {
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var imported = JSON.parse(reader.result);
+        if (!Array.isArray(imported)) throw new Error('Format invalide');
+        saveLedger(imported);
+        toast('Registre importé (' + imported.length + ' code(s))', 'success');
+      } catch (err) { toast('Fichier invalide', 'error'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  renderLedger();
+})();
+</script>
+</body>
+</html>
