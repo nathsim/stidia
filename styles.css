@@ -548,6 +548,54 @@ main { display: block; }
 .compare .v { color: var(--c-green); font-weight: 700; flex: none; }
 @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
 
+/* ─── Tarifs ──────────────────────────────────────────────────────────────────── */
+.pricing {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.price-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 22px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: 0 6px 22px -14px rgba(0, 0, 0, .7);
+}
+.price-card--hot {
+  background: var(--grad-soft);
+  border-color: var(--c-border-2);
+  box-shadow: 0 22px 54px -20px rgba(236, 72, 153, .55);
+  transform: scale(1.03);
+}
+.price-card__flag {
+  position: absolute;
+  top: -13px; left: 50%; transform: translateX(-50%);
+  font-size: .74rem; font-weight: 800; white-space: nowrap;
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--grad);
+  box-shadow: var(--shadow-glow);
+}
+.price-card__name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; }
+.price-card__price { margin-top: 10px; font-family: var(--font-display); font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+.price-card__price span { font-size: .9rem; font-weight: 600; color: var(--c-muted); }
+.price-card__tag { margin-top: 2px; font-size: .85rem; color: var(--c-muted); }
+.price-card__list { list-style: none; margin: 18px 0 22px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.price-card__list li { display: flex; gap: 9px; align-items: flex-start; font-size: .9rem; color: var(--c-muted); }
+.price-card--hot .price-card__list li { color: var(--c-text); }
+.price-card__list .v { color: var(--c-green); font-weight: 700; flex: none; }
+.price-card__list strong { color: var(--c-text); font-weight: 600; }
+.price-card__cta { justify-content: center; width: 100%; }
+.pricing__note { margin-top: 26px; text-align: center; color: var(--c-faint); font-size: .9rem; }
+
+@media (max-width: 1020px) { .pricing { grid-template-columns: repeat(2, 1fr); } .price-card--hot { transform: none; } }
+@media (max-width: 560px)  { .pricing { grid-template-columns: 1fr; } }
+
 /* ─── CTA ─────────────────────────────────────────────────────────────────────── */
 .cta {
   position: relative;

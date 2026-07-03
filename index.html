@@ -46,7 +46,7 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Stidia est-il vraiment gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, 100% gratuit et sans carte bancaire. Tu utilises tes propres clés API gratuites : Groq pour le texte et Pexels pour la vidéo." } },
+      { "@type": "Question", "name": "Stidia est-il gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "L'offre Découverte est gratuite (3 générations/jour, modules essentiels). Les offres payantes (dès 4,99€/mois) débloquent les générations illimitées, les 16 modules et la vidéo HD." } },
       { "@type": "Question", "name": "De quoi ai-je besoin pour commencer ?", "acceptedAnswer": { "@type": "Answer", "text": "Un compte Stidia créé dans l'extension, une clé Groq (texte) et une clé Pexels (vidéo). Tout est gratuit, sans carte bancaire." } },
       { "@type": "Question", "name": "Sur quels navigateurs ça fonctionne ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur tous les navigateurs basés sur Chromium : Chrome, Edge, Brave et Opera." } },
       { "@type": "Question", "name": "Est-ce que ça crée vraiment des vidéos ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, Stidia assemble des séquences vidéo et tes propres images en un montage vertical prêt à publier." } },
@@ -104,7 +104,7 @@
       <a href="#demo">Démo</a>
       <a href="#features">Fonctions</a>
       <a href="#how">Comment ça marche</a>
-      <a href="#modules">Modules</a>
+      <a href="#pricing">Tarifs</a>
       <a href="#faq">FAQ</a>
     </nav>
 
@@ -148,7 +148,7 @@
       </div>
 
       <ul class="hero__badges reveal" aria-label="Points clés">
-        <li>✓ 100 % gratuit</li>
+        <li>✓ Gratuit pour commencer</li>
         <li>✓ Sans carte bancaire</li>
         <li>✓ Données locales</li>
       </ul>
@@ -236,11 +236,11 @@
       </div>
       <div class="stats__item reveal">
         <span class="stats__num" data-count="100">0</span><span class="grad-text">%</span>
-        <span class="stats__label">Gratuit à utiliser</span>
+        <span class="stats__label">Privé, données locales</span>
       </div>
       <div class="stats__item reveal">
         <span class="stats__num" data-count="0">0</span><span class="grad-text">€</span>
-        <span class="stats__label">Aucun abonnement</span>
+        <span class="stats__label">Pour commencer</span>
       </div>
     </section>
 
@@ -402,6 +402,76 @@
       </div>
     </section>
 
+    <!-- ═══════════════════════ TARIFS ═══════════════════════ -->
+    <section class="section" id="pricing">
+      <div class="section__head reveal">
+        <span class="eyebrow">Offres</span>
+        <h2 class="section__title">Choisis ton <span class="grad-text">niveau</span></h2>
+        <p class="section__lead">Commence gratuitement. Passe au niveau supérieur quand tu veux — activation instantanée par code, sans engagement.</p>
+      </div>
+
+      <div class="pricing reveal">
+        <!-- Découverte -->
+        <div class="price-card">
+          <h3 class="price-card__name">Découverte</h3>
+          <div class="price-card__price">0 €<span></span></div>
+          <p class="price-card__tag">Pour essayer Stidia</p>
+          <ul class="price-card__list">
+            <li><span class="v">✓</span> 3 générations par jour</li>
+            <li><span class="v">✓</span> 4 modules essentiels</li>
+            <li><span class="v">✓</span> Vidéo IA 540p (filigrane)</li>
+            <li><span class="v">✓</span> Historique (10 dernières)</li>
+          </ul>
+          <a href="#download" class="btn btn--ghost price-card__cta">Commencer gratuitement</a>
+        </div>
+
+        <!-- Créateur -->
+        <div class="price-card">
+          <h3 class="price-card__name">Créateur</h3>
+          <div class="price-card__price">4,99 €<span>/mois</span></div>
+          <p class="price-card__tag">Pour créer sans limite</p>
+          <ul class="price-card__list">
+            <li><span class="v">✓</span> Générations <strong>illimitées</strong></li>
+            <li><span class="v">✓</span> Les <strong>16 modules</strong></li>
+            <li><span class="v">✓</span> Images jointes (l'IA voit tes photos)</li>
+            <li><span class="v">✓</span> Vidéo <strong>sans filigrane</strong></li>
+            <li><span class="v">✓</span> Historique illimité + export</li>
+          </ul>
+          <a href="mailto:u6985095209@gmail.com?subject=Stidia%20—%20Offre%20Cr%C3%A9ateur" class="btn btn--primary price-card__cta">Obtenir mon code</a>
+        </div>
+
+        <!-- Viral (mise en avant) -->
+        <div class="price-card price-card--hot">
+          <span class="price-card__flag">⭐ Populaire</span>
+          <h3 class="price-card__name">Viral</h3>
+          <div class="price-card__price">9,99 €<span>/mois</span></div>
+          <p class="price-card__tag">Pour percer plus vite</p>
+          <ul class="price-card__list">
+            <li><span class="v">✓</span> Tout <strong>Créateur</strong></li>
+            <li><span class="v">✓</span> Vidéo <strong>HD 1080p</strong></li>
+            <li><span class="v">✓</span> Accès anticipé aux nouveautés</li>
+            <li><span class="v">✓</span> Support prioritaire</li>
+          </ul>
+          <a href="mailto:u6985095209@gmail.com?subject=Stidia%20—%20Offre%20Viral" class="btn btn--primary price-card__cta">Obtenir mon code</a>
+        </div>
+
+        <!-- Studio -->
+        <div class="price-card">
+          <h3 class="price-card__name">Studio</h3>
+          <div class="price-card__price">24,99 €<span>/mois</span></div>
+          <p class="price-card__tag">Pour équipes &amp; agences</p>
+          <ul class="price-card__list">
+            <li><span class="v">✓</span> Tout <strong>Viral</strong></li>
+            <li><span class="v">✓</span> <strong>3 postes</strong> (3 codes)</li>
+            <li><span class="v">✓</span> Idéal multi-comptes TikTok</li>
+          </ul>
+          <a href="mailto:u6985095209@gmail.com?subject=Stidia%20—%20Offre%20Studio" class="btn btn--ghost price-card__cta">Obtenir mon code</a>
+        </div>
+      </div>
+
+      <p class="pricing__note reveal">💡 L'activation se fait en 10 secondes : colle ton code dans ⚙️ Paramètres → « Code d'activation ». Les clés API Groq/Pexels restent gratuites et à toi.</p>
+    </section>
+
     <!-- ═══════════════════════ CTA DOWNLOAD ═══════════════════════ -->
     <section class="section" id="download">
       <div class="cta reveal">
@@ -415,7 +485,7 @@
           </a>
           <a href="#install-steps" class="btn btn--ghost btn--lg">Voir les étapes</a>
         </div>
-        <p class="cta__fine">100% gratuit · Compte en 30 s · Chrome, Edge, Brave &amp; Opera</p>
+        <p class="cta__fine">Gratuit pour commencer · Compte en 30 s · Chrome, Edge, Brave &amp; Opera</p>
 
         <!-- Guide d'installation -->
         <div class="install" id="install-steps">
@@ -456,8 +526,8 @@
 
       <div class="faq reveal">
         <details class="faq__item">
-          <summary>Stidia est-il vraiment gratuit ?</summary>
-          <p>Oui. Stidia est 100 % gratuit et ne demande aucune carte bancaire. Tu utilises tes propres clés d'API gratuites : Groq pour le texte et Pexels pour la vidéo.</p>
+          <summary>Stidia est-il gratuit ?</summary>
+          <p>L'offre <strong>Découverte</strong> est 100 % gratuite, sans carte bancaire : 3 générations par jour avec les modules essentiels. Les <a href="#pricing">offres payantes</a> débloquent les générations illimitées, les 16 modules, la vidéo HD et plus. Les clés API (Groq, Pexels) restent gratuites dans tous les cas.</p>
         </details>
         <details class="faq__item">
           <summary>De quoi ai-je besoin pour commencer ?</summary>
@@ -505,6 +575,7 @@
         <a href="#features">Fonctions</a>
         <a href="#how">Guide</a>
         <a href="#modules">Modules</a>
+        <a href="#pricing">Tarifs</a>
         <a href="#faq">FAQ</a>
         <a href="#download">Installer</a>
         <a href="privacy.html">Confidentialité</a>
