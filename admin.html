@@ -41,6 +41,9 @@
   .field input,.field select{width:100%;padding:12px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
     background:rgba(255,255,255,.05);color:#fff;font-size:.95rem;font-family:inherit}
   .field input:focus,.field select:focus{outline:none;border-color:#A855F7;box-shadow:0 0 0 3px rgba(124,58,237,.25)}
+  /* Le menu deroulant ouvert est rendu par l'OS (fond blanc par defaut) : on force
+     un fond sombre + texte clair sur les options pour eviter le blanc-sur-blanc. */
+  .field select option, .plan-select option{background:#1c1424;color:#fff}
   .error{display:none;margin:4px 0 12px;padding:10px 14px;border-radius:10px;font-size:.86rem;
     color:#FCA5A5;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35)}
   .error.show{display:block}
