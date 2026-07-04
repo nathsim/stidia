@@ -241,6 +241,81 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .nav__burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .nav__burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* ─── Widget de compte (connexion / inscription en un clic dans la nav) ─────────── */
+.acc { position: relative; }
+.acc__btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  font-size: .88rem; font-weight: 600;
+  color: var(--c-text);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color .15s var(--ease), background .15s var(--ease);
+}
+.acc__btn:hover { border-color: var(--c-border-2); background: rgba(255,255,255,.09); }
+.acc__avatar {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: .72rem; font-weight: 800; color: #fff;
+  background: var(--grad); flex: none;
+}
+.acc__avatar--lg { width: 42px; height: 42px; font-size: 1.1rem; }
+
+.acc__panel {
+  position: absolute; top: calc(100% + 12px); right: 0;
+  width: 300px;
+  padding: 20px;
+  background: #15111F;
+  border: 1px solid var(--c-border-2);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow), 0 0 50px -18px rgba(124,58,237,.5);
+  z-index: 110;
+  animation: accIn .18s var(--ease);
+}
+@keyframes accIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+.acc__state.center { text-align: center; }
+.acc__spinner {
+  width: 26px; height: 26px; margin: 4px auto 12px;
+  border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--c-violet-2);
+  animation: spin .9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.acc__sub { font-size: .86rem; color: var(--c-muted); }
+
+.acc__field { margin-bottom: 10px; }
+.acc__field input {
+  width: 100%; padding: 10px 13px;
+  font-size: .88rem; font-family: inherit; color: var(--c-text);
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+}
+.acc__field input:focus { outline: none; border-color: var(--c-violet-2); box-shadow: 0 0 0 3px rgba(124,58,237,.25); }
+.acc__hint { margin: -4px 0 10px; font-size: .76rem; color: var(--c-faint); }
+.acc__error {
+  display: none; margin: 0 0 10px; padding: 8px 11px;
+  font-size: .8rem; color: #FCA5A5;
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35); border-radius: var(--r-sm);
+}
+.acc__error.show { display: block; }
+.acc__full-btn { display: flex; width: 100%; justify-content: center; margin-bottom: 8px; }
+.acc__switch { text-align: center; font-size: .82rem; color: var(--c-muted); }
+
+.acc__who { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.acc__name { font-weight: 700; font-size: .95rem; }
+.acc__plan {
+  display: inline-block; margin-top: 3px;
+  padding: 2px 10px; border-radius: 999px;
+  font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--c-muted); background: var(--c-surface-2); border: 1px solid var(--c-border);
+}
+
+@media (max-width: 860px) { .acc { order: -1; } .acc__panel { right: -40px; } }
+@media (max-width: 460px) { .acc__btn span:not(.acc__avatar) { display: none; } .acc__btn { padding: 8px 12px; } }
+
 /* ─── Layout sections ─────────────────────────────────────────────────────────── */
 main { display: block; }
 .section {

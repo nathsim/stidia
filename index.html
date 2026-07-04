@@ -110,6 +110,61 @@
       <a href="admin.html">Staff</a>
     </nav>
 
+    <div class="acc" id="acc">
+      <button class="acc__btn" id="acc-btn" type="button" aria-haspopup="true" aria-expanded="false">
+        <span class="acc__avatar" id="acc-avatar" hidden></span>
+        <span id="acc-btn-label">Se connecter</span>
+      </button>
+
+      <div class="acc__panel" id="acc-panel" hidden>
+        <!-- Détection -->
+        <div class="acc__state center" id="acc-detect">
+          <div class="acc__spinner" aria-hidden="true"></div>
+          <p class="acc__sub">Recherche de l'extension…</p>
+        </div>
+
+        <!-- Extension absente -->
+        <div class="acc__state center" id="acc-noext" hidden>
+          <p class="acc__sub">Extension introuvable. Installe Stidia pour te connecter.</p>
+          <a class="btn btn--primary acc__full-btn" href="#download">⚡ Installer Stidia</a>
+        </div>
+
+        <!-- Connexion -->
+        <div class="acc__state" id="acc-login" hidden>
+          <div class="acc__field"><input id="acc-l-user" type="text" autocomplete="username" placeholder="Identifiant" /></div>
+          <div class="acc__field"><input id="acc-l-pass" type="password" autocomplete="current-password" placeholder="Mot de passe" /></div>
+          <p class="acc__error" id="acc-l-error"></p>
+          <button class="btn btn--primary acc__full-btn" id="acc-l-btn" type="button">Se connecter</button>
+          <p class="acc__switch">Pas de compte ? <a href="#" id="acc-go-register">Créer un compte</a></p>
+        </div>
+
+        <!-- Inscription -->
+        <div class="acc__state" id="acc-register" hidden>
+          <div class="acc__field"><input id="acc-r-user" type="text" autocomplete="username" placeholder="Identifiant (3+ caractères)" /></div>
+          <div class="acc__field"><input id="acc-r-pass" type="password" autocomplete="new-password" placeholder="Mot de passe (6+ caractères)" /></div>
+          <div class="acc__field"><input id="acc-r-confirm" type="password" autocomplete="new-password" placeholder="Confirmer le mot de passe" /></div>
+          <div class="acc__field"><input id="acc-r-key" type="password" autocomplete="off" spellcheck="false" placeholder="Clé API Groq (gsk_…)" /></div>
+          <p class="acc__hint">Gratuite sur <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a></p>
+          <p class="acc__error" id="acc-r-error"></p>
+          <button class="btn btn--primary acc__full-btn" id="acc-r-btn" type="button">Créer mon compte</button>
+          <p class="acc__switch">Déjà un compte ? <a href="#" id="acc-go-login">Se connecter</a></p>
+        </div>
+
+        <!-- Connecté -->
+        <div class="acc__state" id="acc-connected" hidden>
+          <div class="acc__who">
+            <span class="acc__avatar acc__avatar--lg" id="acc-c-avatar">?</span>
+            <div>
+              <div class="acc__name" id="acc-c-name">—</div>
+              <span class="acc__plan" id="acc-c-plan">Découverte</span>
+            </div>
+          </div>
+          <a class="btn btn--primary acc__full-btn" href="dashboard.html">📊 Voir mon Dashboard</a>
+          <button class="btn btn--ghost acc__full-btn" id="acc-logout" type="button">Se déconnecter</button>
+        </div>
+      </div>
+    </div>
+
     <a href="#download" class="btn btn--primary nav__cta">Installer gratuitement</a>
 
     <button class="nav__burger" id="nav-burger" aria-label="Ouvrir le menu" aria-expanded="false">

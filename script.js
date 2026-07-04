@@ -340,4 +340,127 @@
       hero.addEventListener('pointerleave', () => { mockup.style.transform = ''; });
     }
   }
+
+  /* ─── Widget de compte (nav) : connexion / inscription / session détectée ──── */
+  const accRoot = document.getElementById('acc');
+  if (accRoot) {
+    const PAGE = 'stidia-dashboard', EXT = 'stidia-extension';
+    let pending = {}, seq = 0, extReady = false, creds = null, currentProfile = null;
+
+    const send = (action, payload) => new Promise((resolve) => {
+      const id = 'a' + (++seq);
+      pending[id] = resolve;
+      window.postMessage({ source: PAGE, action, payload, reqId: id }, window.location.origin);
+      setTimeout(() => {
+        if (pending[id]) { pending[id]({ success: false, error: 'Pas de réponse de l\'extension.' }); delete pending[id]; }
+      }, 6000);
+    });
+    window.addEventListener('message', (e) => {
+      if (e.source !== window) return;
+      const d = e.data;
+      if (!d || d.source !== EXT) return;
+      if (d.ready) extReady = true;
+      if (d.reqId && pending[d.reqId]) { pending[d.reqId](d.response); delete pending[d.reqId]; }
+    });
+
+    const btn        = document.getElementById('acc-btn');
+    const btnLabel   = document.getElementById('acc-btn-label');
+    const btnAvatar  = document.getElementById('acc-avatar');
+    const panel      = document.getElementById('acc-panel');
+    const STATES     = ['acc-detect', 'acc-noext', 'acc-login', 'acc-register', 'acc-connected'];
+    const showState  = (id) => STATES.forEach((s) => { document.getElementById(s).hidden = (s !== id); });
+
+    const PLAN_LABELS = { free: 'Découverte', creator: 'Créateur', viral: 'Viral', studio: 'Studio' };
+
+    function renderConnected(p) {
+      currentProfile = p;
+      const initial = (p.username[0] || '?').toUpperCase();
+      btnAvatar.textContent = initial; btnAvatar.hidden = false;
+      btnLabel.textContent = '@' + p.username;
+      document.getElementById('acc-c-avatar').textContent = initial;
+      document.getElementById('acc-c-name').textContent = '@' + p.username;
+      document.getElementById('acc-c-plan').textContent = PLAN_LABELS[p.plan] || 'Découverte';
+      showState('acc-connected');
+    }
+
+    function renderLoggedOut() {
+      currentProfile = null; creds = null;
+      btnAvatar.hidden = true;
+      btnLabel.textContent = 'Se connecter';
+      showState('acc-login');
+    }
+
+    // Détection extension + session déjà active (auto-connexion sans mot de passe)
+    let tries = 0;
+    const probe = setInterval(() => {
+      if (extReady) {
+        clearInterval(probe);
+        send('DASH_WHOAMI', {}).then((res) => {
+          if (res && res.success && res.profile) renderConnected(res.profile);
+          else renderLoggedOut();
+        });
+        return;
+      }
+      send('DASH_PING', {});
+      if (++tries > 8) { clearInterval(probe); showState('acc-noext'); }
+    }, 300);
+
+    // Ouverture / fermeture du panneau
+    function openPanel() { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
+    function closePanel() { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      panel.hidden ? openPanel() : closePanel();
+    });
+    document.addEventListener('click', (e) => { if (!accRoot.contains(e.target)) closePanel(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+    // Connexion
+    const lBtn = document.getElementById('acc-l-btn'), lErr = document.getElementById('acc-l-error');
+    function doLogin() {
+      const username = document.getElementById('acc-l-user').value.trim();
+      const password = document.getElementById('acc-l-pass').value;
+      lErr.classList.remove('show');
+      lBtn.disabled = true; lBtn.textContent = 'Connexion…';
+      send('DASH_LOGIN', { username, password }).then((res) => {
+        lBtn.disabled = false; lBtn.textContent = 'Se connecter';
+        if (!res || !res.success) { lErr.textContent = (res && res.error) || 'Connexion impossible.'; lErr.classList.add('show'); return; }
+        creds = { username, password };
+        renderConnected(res.profile);
+      });
+    }
+    lBtn.addEventListener('click', doLogin);
+    ['acc-l-user', 'acc-l-pass'].forEach((id) => document.getElementById(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); }));
+
+    // Inscription
+    const rBtn = document.getElementById('acc-r-btn'), rErr = document.getElementById('acc-r-error');
+    function doRegister() {
+      const username = document.getElementById('acc-r-user').value.trim();
+      const password = document.getElementById('acc-r-pass').value;
+      const confirm  = document.getElementById('acc-r-confirm').value;
+      const apiKey   = document.getElementById('acc-r-key').value.trim();
+      rErr.classList.remove('show');
+      if (password !== confirm) { rErr.textContent = 'Les mots de passe ne correspondent pas.'; rErr.classList.add('show'); return; }
+      rBtn.disabled = true; rBtn.textContent = 'Création…';
+      send('DASH_REGISTER', { username, password, apiKey }).then((res) => {
+        rBtn.disabled = false; rBtn.textContent = 'Créer mon compte';
+        if (!res || !res.success) { rErr.textContent = (res && res.error) || 'Création impossible.'; rErr.classList.add('show'); return; }
+        creds = { username, password };
+        renderConnected(res.profile);
+      });
+    }
+    rBtn.addEventListener('click', doRegister);
+    ['acc-r-user', 'acc-r-pass', 'acc-r-confirm', 'acc-r-key'].forEach((id) => document.getElementById(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doRegister(); }));
+
+    // Bascule connexion / inscription
+    document.getElementById('acc-go-register').addEventListener('click', (e) => { e.preventDefault(); lErr.classList.remove('show'); showState('acc-register'); });
+    document.getElementById('acc-go-login').addEventListener('click', (e) => { e.preventDefault(); rErr.classList.remove('show'); showState('acc-login'); });
+
+    // Déconnexion (locale au widget — n'affecte pas la session de l'extension elle-même)
+    document.getElementById('acc-logout').addEventListener('click', () => {
+      document.getElementById('acc-l-pass').value = '';
+      renderLoggedOut();
+      closePanel();
+    });
+  }
 })();
