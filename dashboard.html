@@ -121,6 +121,14 @@
     font-size:.83rem;color:#C7C1DA;white-space:pre-wrap;max-height:200px;overflow-y:auto}
   .fh-item.open .fh-item__body{display:block}
   .fh-empty{text-align:center;color:#8F89A6;font-size:.86rem;padding:16px}
+  .fh-item__del{flex:none;background:none;border:none;color:#8F89A6;cursor:pointer;font-size:.9rem;padding:2px 4px;border-radius:6px}
+  .fh-item__del:hover{color:#FCA5A5;background:rgba(239,68,68,.12)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    padding:11px 20px;border-radius:99px;font-size:.86rem;font-weight:600;color:#fff;
+    background:#1c1424;border:1px solid rgba(255,255,255,.15);opacity:0;transition:transform .3s ease,opacity .3s ease;z-index:50}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .toast.success{border-color:rgba(16,185,129,.4)}
+  .toast.error{border-color:rgba(239,68,68,.4)}
   [hidden]{display:none !important}
 </style>
 </head>
@@ -251,6 +259,8 @@
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 (function () {
   'use strict';
@@ -258,6 +268,14 @@
   var PAGE = 'stidia-dashboard', EXT = 'stidia-extension';
   var pending = {}, seq = 0, extReady = false;
   var creds = null; // gardés en mémoire uniquement (jamais stockés)
+
+  function toast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.className = 'toast'; }, 2600);
+  }
 
   function send(action, payload) {
     return new Promise(function (resolve) {
@@ -498,12 +516,26 @@
     if (!items.length) { fhList.innerHTML = '<li class="fh-empty">Aucun résultat.</li>'; return; }
     fhList.innerHTML = items.map(function (e, i) {
       return '<li class="fh-item" data-idx="' + i + '">' +
-        '<div class="fh-item__head"><span class="p">' + esc(e.prompt || '(sans titre)') + '</span><span class="d">' + fmtDate(e.createdAt) + '</span></div>' +
+        '<div class="fh-item__head"><span class="p">' + esc(e.prompt || '(sans titre)') + '</span>' +
+          '<span class="d">' + fmtDate(e.createdAt) + '</span>' +
+          '<button class="fh-item__del" type="button" title="Supprimer cette génération">✕</button></div>' +
         '<div class="fh-item__body">' + esc(e.result || '') + '</div>' +
       '</li>';
     }).join('');
     fhList.querySelectorAll('.fh-item').forEach(function (li, i) {
       li.addEventListener('click', function () { li.classList.toggle('open'); });
+      li.querySelector('.fh-item__del').addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        var entry = items[i];
+        if (!confirm('Supprimer cette génération de l\'historique ?')) return;
+        var payload = creds ? { username: creds.username, password: creds.password, id: entry.id } : { id: entry.id };
+        send('DASH_DELETE_HISTORY_ENTRY', payload).then(function (res) {
+          if (!res || !res.success) { toast((res && res.error) || 'Suppression impossible.', 'error'); return; }
+          fullHistory = fullHistory.filter(function (h) { return h.id !== entry.id; });
+          toast('Génération supprimée', 'success');
+          renderFullHistory(fhSearch.value);
+        });
+      });
     });
     // referme la portée de "items" pour la recherche suivante en la stockant sur l'élément
     fhList._current = items;
@@ -517,7 +549,7 @@
     var payload = creds || {};
     send('DASH_GET_HISTORY', payload).then(function (res) {
       fhToggle.disabled = false;
-      if (!res || !res.success) { fhToggle.textContent = 'Afficher ↓'; alert((res && res.error) || 'Impossible de charger l\'historique.'); return; }
+      if (!res || !res.success) { fhToggle.textContent = 'Afficher ↓'; toast((res && res.error) || 'Impossible de charger l\'historique.', 'error'); return; }
       fullHistory = res.history || [];
       fhPanel.hidden = false;
       fhToggle.textContent = 'Masquer ↑';
@@ -527,7 +559,7 @@
   fhSearch.addEventListener('input', function () { if (fullHistory) renderFullHistory(fhSearch.value); });
 
   document.getElementById('d-fh-export').addEventListener('click', function () {
-    if (!fullHistory || !fullHistory.length) { alert('Aucun historique à exporter.'); return; }
+    if (!fullHistory || !fullHistory.length) { toast('Aucun historique à exporter.', 'error'); return; }
     var header = 'STIDIA — Export de l\'historique (' + fullHistory.length + ' génération' + (fullHistory.length > 1 ? 's' : '') + ')\n\n';
     var body = fullHistory.map(function (e) {
       return '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' + fmtDate(e.createdAt) + '\nPROMPT : ' + (e.prompt || '') + '\n\n' + (e.result || '') + '\n';

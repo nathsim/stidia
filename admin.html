@@ -70,6 +70,15 @@
   table{width:100%;border-collapse:collapse;font-size:.88rem}
   th{text-align:left;color:#8F89A6;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;
     padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
+  th.sortable{cursor:pointer;user-select:none;transition:color .15s ease}
+  th.sortable:hover{color:#EC7FB8}
+  th.sortable .arrow{margin-left:3px;opacity:.5;font-size:.7em}
+  th.sortable.active{color:#EC7FB8}
+  th.sortable.active .arrow{opacity:1}
+  .activity-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+  .activity--active{background:#6EE7B7}
+  .activity--quiet{background:#FCD34D}
+  .activity--stale{background:#6F6980}
   td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}
   tr:last-child td{border-bottom:none}
   .plan-select{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:.82rem}
@@ -159,10 +168,20 @@
       <div class="toolbar">
         <button class="btn btn--ghost btn--sm" id="acc-refresh" type="button">↻ Actualiser</button>
         <input id="acc-search" type="search" placeholder="Rechercher un compte…" style="flex:1;min-width:160px;max-width:260px;padding:8px 13px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit" />
+        <button class="btn btn--ghost btn--sm" id="acc-export-csv" type="button">⬇ Exporter (.csv)</button>
       </div>
       <table>
-        <thead><tr><th>Compte</th><th>Offre</th><th>Code</th><th>Clés</th><th>Générations</th><th>Depuis</th><th></th></tr></thead>
-        <tbody id="acc-body"><tr class="empty-row"><td colspan="7">Chargement…</td></tr></tbody>
+        <thead><tr>
+          <th class="sortable" data-sort="username">Compte</th>
+          <th class="sortable" data-sort="plan">Offre</th>
+          <th>Code</th>
+          <th>Clés</th>
+          <th class="sortable" data-sort="historyCount">Générations</th>
+          <th class="sortable" data-sort="createdAt">Depuis</th>
+          <th class="sortable" data-sort="lastActivityAt">Dernière activité</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="acc-body"><tr class="empty-row"><td colspan="8">Chargement…</td></tr></tbody>
       </table>
     </div>
 
@@ -209,6 +228,11 @@
           ⬆ Importer
           <input type="file" id="ledger-import" accept="application/json" hidden />
         </label>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" id="ledger-copy-filtered" type="button">⧉ Copier les codes affichés</button>
+        <button class="btn btn--ghost btn--sm" id="ledger-mark-used" type="button">✓ Marquer affichés comme activés</button>
+        <button class="btn btn--danger btn--sm" id="ledger-clear" type="button">🗑 Vider le registre</button>
       </div>
       <div id="ledger-list"></div>
       <p class="section-sub" id="ledger-empty">Aucun code dans le registre pour l'instant.</p>
@@ -318,16 +342,54 @@
   }
 
   var allAccounts = [];
+  var accSort = { key: null, dir: 1 };
+
+  function activityInfo(iso) {
+    if (!iso) return { cls: 'activity--stale', label: 'Jamais généré' };
+    var days = (Date.parse(new Date().toISOString()) - Date.parse(iso)) / 86400000;
+    if (days <= 3)  return { cls: 'activity--active', label: fmtDate(iso) };
+    if (days <= 21) return { cls: 'activity--quiet',  label: fmtDate(iso) };
+    return { cls: 'activity--stale', label: fmtDate(iso) };
+  }
+
+  function sortAccounts(accounts) {
+    if (!accSort.key) return accounts;
+    var key = accSort.key, dir = accSort.dir;
+    return accounts.slice().sort(function (a, b) {
+      var va = a[key], vb = b[key];
+      if (key === 'createdAt' || key === 'lastActivityAt') { va = va ? Date.parse(va) : 0; vb = vb ? Date.parse(vb) : 0; }
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+  }
+
+  document.querySelectorAll('th.sortable').forEach(function (th) {
+    var arrow = document.createElement('span'); arrow.className = 'arrow'; arrow.textContent = '▲';
+    th.appendChild(arrow);
+    th.addEventListener('click', function () {
+      var key = th.dataset.sort;
+      if (accSort.key === key) accSort.dir *= -1; else { accSort.key = key; accSort.dir = 1; }
+      document.querySelectorAll('th.sortable').forEach(function (t) {
+        t.classList.toggle('active', t === th);
+        t.querySelector('.arrow').textContent = (t === th && accSort.dir === -1) ? '▼' : '▲';
+      });
+      renderAccounts(allAccounts);
+    });
+  });
 
   function renderAccounts(accounts) {
     var body = document.getElementById('acc-body');
     var q = (document.getElementById('acc-search').value || '').trim().toLowerCase();
     var filtered = q ? accounts.filter(function (a) { return a.username.toLowerCase().indexOf(q) > -1; }) : accounts;
+    filtered = sortAccounts(filtered);
 
     updateOverviewStats(accounts);
 
     if (!filtered.length) {
-      body.innerHTML = '<tr class="empty-row"><td colspan="7">' + (q ? 'Aucun résultat pour « ' + q + ' ».' : 'Aucun compte dans ce navigateur.') + '</td></tr>';
+      body.innerHTML = '<tr class="empty-row"><td colspan="8">' + (q ? 'Aucun résultat pour « ' + q + ' ».' : 'Aucun compte dans ce navigateur.') + '</td></tr>';
       return;
     }
     body.innerHTML = '';
@@ -369,6 +431,11 @@
       var tdDate = document.createElement('td'); tdDate.textContent = fmtDate(a.createdAt);
       tr.appendChild(tdDate);
 
+      var tdActivity = document.createElement('td');
+      var act = activityInfo(a.lastActivityAt);
+      tdActivity.innerHTML = '<span class="activity-dot ' + act.cls + '"></span>' + act.label;
+      tr.appendChild(tdActivity);
+
       var tdDel = document.createElement('td');
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn--danger btn--sm'; delBtn.type = 'button'; delBtn.textContent = 'Supprimer';
@@ -400,6 +467,18 @@
   }
 
   document.getElementById('acc-search').addEventListener('input', function () { renderAccounts(allAccounts); });
+
+  document.getElementById('acc-export-csv').addEventListener('click', function () {
+    var rows = [['Compte', 'Offre', 'Code', 'Groq', 'Pexels', 'Générations', 'Depuis', 'Dernière activité']];
+    allAccounts.forEach(function (a) {
+      rows.push(['@' + a.username, PLAN_LABELS[a.plan] || a.plan, a.licenseCode || '', a.hasGroqKey ? 'Oui' : 'Non',
+        a.hasPexelsKey ? 'Oui' : 'Non', a.historyCount, fmtDate(a.createdAt), a.lastActivityAt ? fmtDate(a.lastActivityAt) : 'Jamais']);
+    });
+    var csv = rows.map(function (r) {
+      return r.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    downloadFile('﻿' + csv, 'stidia-comptes.csv', 'text/csv;charset=utf-8');
+  });
 
   function refreshAccounts() {
     send('ADMIN_LIST_ACCOUNTS', { adminKey: adminKey }).then(function (res) {
@@ -464,21 +543,25 @@
     saveLedger(l);
   }
 
-  function renderLedger() {
+  function getFilteredLedger() {
     var list = loadLedger();
-    var container = document.getElementById('ledger-list');
-    var empty = document.getElementById('ledger-empty');
-
     var q      = (document.getElementById('ledger-search').value || '').trim().toLowerCase();
     var fStat  = document.getElementById('ledger-filter-status').value;
     var fTier  = document.getElementById('ledger-filter-tier').value;
-    var filtered = list.filter(function (item, idx) {
+    return list.filter(function (item, idx) {
       item._idx = idx; // conserve l'index réel dans le tableau non filtré pour les actions
       if (fStat && item.status !== fStat) return false;
       if (fTier && item.tier !== fTier) return false;
       if (q && item.code.toLowerCase().indexOf(q) === -1 && (item.note || '').toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
+  }
+
+  function renderLedger() {
+    var list = loadLedger();
+    var container = document.getElementById('ledger-list');
+    var empty = document.getElementById('ledger-empty');
+    var filtered = getFilteredLedger();
 
     container.innerHTML = '';
     empty.hidden = list.length > 0;
@@ -532,6 +615,29 @@
   document.getElementById('ledger-search').addEventListener('input', renderLedger);
   document.getElementById('ledger-filter-status').addEventListener('change', renderLedger);
   document.getElementById('ledger-filter-tier').addEventListener('change', renderLedger);
+
+  document.getElementById('ledger-copy-filtered').addEventListener('click', function () {
+    var filtered = getFilteredLedger();
+    if (!filtered.length) { toast('Aucun code à copier', 'error'); return; }
+    navigator.clipboard.writeText(filtered.map(function (i) { return i.code; }).join('\n'))
+      .then(function () { toast(filtered.length + ' code(s) copié(s)', 'success'); });
+  });
+
+  document.getElementById('ledger-mark-used').addEventListener('click', function () {
+    var filtered = getFilteredLedger();
+    if (!filtered.length) { toast('Aucun code affiché', 'error'); return; }
+    var l = loadLedger();
+    filtered.forEach(function (item) { l[item._idx].status = 'used'; });
+    saveLedger(l);
+    toast(filtered.length + ' code(s) marqué(s) activé(s)', 'success');
+  });
+
+  document.getElementById('ledger-clear').addEventListener('click', function () {
+    if (!loadLedger().length) return;
+    if (!confirm('Vider tout le registre de codes (irréversible) ?')) return;
+    saveLedger([]);
+    toast('Registre vidé', 'success');
+  });
 
   function downloadFile(content, filename, mime) {
     var blob = new Blob([content], { type: mime });
