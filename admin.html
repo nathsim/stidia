@@ -61,6 +61,12 @@
   h2{font-size:1.05rem;font-weight:700;margin-bottom:4px}
   .section-sub{color:#8F89A6;font-size:.85rem;margin-bottom:18px}
 
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat-box{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 14px;text-align:center}
+  .stat-num{font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-lbl{margin-top:3px;font-size:.75rem;color:#B4AEC6}
+  @media(max-width:640px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+
   table{width:100%;border-collapse:collapse;font-size:.88rem}
   th{text-align:left;color:#8F89A6;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;
     padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
@@ -134,14 +140,28 @@
       </div>
     </div>
 
+    <!-- Stats globales -->
+    <div class="panel">
+      <h2 style="margin-bottom:16px">📊 Vue d'ensemble</h2>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="s-accounts">0</div><div class="stat-lbl">Comptes (ce navigateur)</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-paying">0</div><div class="stat-lbl">Comptes payants</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-codes">0</div><div class="stat-lbl">Codes dans le registre</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-revenue">0 €</div><div class="stat-lbl">Revenu potentiel/mois</div></div>
+      </div>
+    </div>
+
     <!-- Comptes locaux -->
     <div class="panel">
       <h2>👤 Comptes de ce navigateur</h2>
       <p class="section-sub">Comptes Stidia enregistrés dans l'extension installée ici. Change une offre sans code, ou supprime un compte de test.</p>
-      <div class="toolbar"><button class="btn btn--ghost btn--sm" id="acc-refresh" type="button">↻ Actualiser</button></div>
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" id="acc-refresh" type="button">↻ Actualiser</button>
+        <input id="acc-search" type="search" placeholder="Rechercher un compte…" style="flex:1;min-width:160px;max-width:260px;padding:8px 13px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit" />
+      </div>
       <table>
-        <thead><tr><th>Compte</th><th>Offre</th><th>Clés</th><th>Générations</th><th>Depuis</th><th></th></tr></thead>
-        <tbody id="acc-body"><tr class="empty-row"><td colspan="6">Chargement…</td></tr></tbody>
+        <thead><tr><th>Compte</th><th>Offre</th><th>Code</th><th>Clés</th><th>Générations</th><th>Depuis</th><th></th></tr></thead>
+        <tbody id="acc-body"><tr class="empty-row"><td colspan="7">Chargement…</td></tr></tbody>
       </table>
     </div>
 
@@ -168,6 +188,7 @@
       <p class="section-sub">Sauvegardé dans ce navigateur (localStorage). Exporte régulièrement pour ne rien perdre.</p>
       <div class="toolbar">
         <button class="btn btn--ghost btn--sm" id="ledger-export" type="button">⬇ Exporter (.json)</button>
+        <button class="btn btn--ghost btn--sm" id="ledger-export-csv" type="button">⬇ Exporter (.csv)</button>
         <label class="btn btn--ghost btn--sm" style="cursor:pointer">
           ⬆ Importer
           <input type="file" id="ledger-import" accept="application/json" hidden />
@@ -227,7 +248,8 @@
         adminKey = key;
         sessionStorage.setItem('stidia_admin_key', key);
         gate.hidden = true; panel.hidden = false;
-        renderAccounts(res.accounts);
+        allAccounts = res.accounts;
+        renderAccounts(allAccounts);
         return true;
       }
       gateErr.textContent = (res && res.error) || 'Clé refusée.';
@@ -279,14 +301,21 @@
     catch (e) { return '—'; }
   }
 
+  var allAccounts = [];
+
   function renderAccounts(accounts) {
     var body = document.getElementById('acc-body');
-    if (!accounts || !accounts.length) {
-      body.innerHTML = '<tr class="empty-row"><td colspan="6">Aucun compte dans ce navigateur.</td></tr>';
+    var q = (document.getElementById('acc-search').value || '').trim().toLowerCase();
+    var filtered = q ? accounts.filter(function (a) { return a.username.toLowerCase().indexOf(q) > -1; }) : accounts;
+
+    updateOverviewStats(accounts);
+
+    if (!filtered.length) {
+      body.innerHTML = '<tr class="empty-row"><td colspan="7">' + (q ? 'Aucun résultat pour « ' + q + ' ».' : 'Aucun compte dans ce navigateur.') + '</td></tr>';
       return;
     }
     body.innerHTML = '';
-    accounts.forEach(function (a) {
+    filtered.forEach(function (a) {
       var tr = document.createElement('tr');
 
       var tdUser = document.createElement('td'); tdUser.textContent = '@' + a.username;
@@ -301,12 +330,16 @@
       });
       sel.addEventListener('change', function () {
         send('ADMIN_SET_PLAN', { adminKey: adminKey, username: a.username, plan: sel.value }).then(function (res) {
-          if (res && res.success) toast('Offre de @' + a.username + ' → ' + PLAN_LABELS[sel.value], 'success');
+          if (res && res.success) { toast('Offre de @' + a.username + ' → ' + PLAN_LABELS[sel.value], 'success'); refreshAccounts(); }
           else toast((res && res.error) || 'Échec', 'error');
         });
       });
       tdPlan.appendChild(sel);
       tr.appendChild(tdPlan);
+
+      var tdCode = document.createElement('td');
+      tdCode.innerHTML = a.licenseCode ? '<code style="font-size:.76rem">' + a.licenseCode + '</code>' : '<span style="color:#6F6980">—</span>';
+      tr.appendChild(tdCode);
 
       var tdKeys = document.createElement('td');
       tdKeys.innerHTML =
@@ -337,9 +370,23 @@
     });
   }
 
+  var TIER_PRICE = { CREA: 4.99, VIRAL: 9.99, STUDIO: 24.99 };
+
+  function updateOverviewStats(accounts) {
+    document.getElementById('s-accounts').textContent = accounts.length;
+    document.getElementById('s-paying').textContent = accounts.filter(function (a) { return a.plan && a.plan !== 'free'; }).length;
+
+    var ledger = loadLedger();
+    document.getElementById('s-codes').textContent = ledger.length;
+    var revenue = ledger.reduce(function (sum, item) { return sum + (TIER_PRICE[item.tier] || 0); }, 0);
+    document.getElementById('s-revenue').textContent = revenue.toFixed(2).replace('.', ',') + ' €';
+  }
+
+  document.getElementById('acc-search').addEventListener('input', function () { renderAccounts(allAccounts); });
+
   function refreshAccounts() {
     send('ADMIN_LIST_ACCOUNTS', { adminKey: adminKey }).then(function (res) {
-      if (res && res.success) renderAccounts(res.accounts);
+      if (res && res.success) { allAccounts = res.accounts; renderAccounts(allAccounts); }
       else toast((res && res.error) || 'Échec du chargement', 'error');
     });
   }
@@ -443,14 +490,30 @@
 
       container.appendChild(row);
     });
+
+    updateOverviewStats(allAccounts);
+  }
+
+  function downloadFile(content, filename, mime) {
+    var blob = new Blob([content], { type: mime });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   }
 
   document.getElementById('ledger-export').addEventListener('click', function () {
-    var blob = new Blob([JSON.stringify(loadLedger(), null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a'); a.href = url; a.download = 'stidia-registre-codes.json';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    downloadFile(JSON.stringify(loadLedger(), null, 2), 'stidia-registre-codes.json', 'application/json');
+  });
+  document.getElementById('ledger-export-csv').addEventListener('click', function () {
+    var rows = [['Code', 'Offre', 'Statut', 'Note', 'Ajouté le']];
+    loadLedger().forEach(function (item) {
+      rows.push([item.code, item.tier, item.status === 'used' ? 'Activé' : 'Émis', item.note || '', fmtDate(item.addedAt)]);
+    });
+    var csv = rows.map(function (r) {
+      return r.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    downloadFile('﻿' + csv, 'stidia-registre-codes.csv', 'text/csv;charset=utf-8');
   });
   document.getElementById('ledger-import').addEventListener('change', function (e) {
     var file = e.target.files[0]; if (!file) return;

@@ -79,8 +79,15 @@
   .key{font-size:.8rem;font-weight:600;padding:7px 13px;border-radius:99px;border:1px solid}
   .key--ok{color:#6EE7B7;border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.1)}
   .key--no{color:#FCA5A5;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08)}
+  .key--license{color:#E9D5FF;border-color:rgba(168,85,247,.4);background:rgba(124,58,237,.12);font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 
   h2{font-size:.95rem;font-weight:700;color:#B4AEC6;margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em}
+
+  .chart{display:flex;align-items:flex-end;gap:4px;height:70px;margin-bottom:24px;padding:0 2px}
+  .chart .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+  .chart .bar{width:100%;max-width:22px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#A855F7,#7C3AED);min-height:3px;transition:height .4s ease}
+  .chart .bar.zero{background:rgba(255,255,255,.08)}
+  .chart .day-lbl{font-size:.62rem;color:#6F6980}
   .recent{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
   .recent li{display:flex;justify-content:space-between;gap:14px;align-items:baseline;
     background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:11px 15px;font-size:.9rem}
@@ -186,7 +193,11 @@
     <div class="keys">
       <span class="key" id="d-key-groq">Clé Groq</span>
       <span class="key" id="d-key-pexels">Clé Pexels</span>
+      <span class="key key--license" id="d-key-license" hidden>Code</span>
     </div>
+
+    <h2>Activité (14 derniers jours)</h2>
+    <div class="chart" id="d-chart"></div>
 
     <h2>Activité récente</h2>
     <ul class="recent" id="d-recent"></ul>
@@ -327,10 +338,19 @@
     catch (e) { return ''; }
   }
 
+  function daysSince(iso) {
+    if (!iso) return null;
+    var d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    return d >= 0 ? d : 0;
+  }
+
   function render(p) {
     document.getElementById('d-avatar').textContent = (p.username[0] || '?').toUpperCase();
     document.getElementById('d-name').textContent = '@' + p.username;
-    document.getElementById('d-since').textContent = p.createdAt ? 'Membre depuis le ' + fmtDate(p.createdAt) : 'Compte Stidia';
+    var since = daysSince(p.createdAt);
+    document.getElementById('d-since').textContent = p.createdAt
+      ? 'Membre depuis le ' + fmtDate(p.createdAt) + (since !== null ? ' (' + since + ' jour' + (since !== 1 ? 's' : '') + ')' : '')
+      : 'Compte Stidia';
 
     var planEl = document.getElementById('d-plan');
     planEl.textContent = PLAN_LABELS[p.plan] || 'Découverte';
@@ -352,6 +372,26 @@
     var kp = document.getElementById('d-key-pexels');
     kp.textContent = p.hasPexelsKey ? '✓ Clé Pexels configurée' : '✗ Clé Pexels manquante (vidéo)';
     kp.className = 'key ' + (p.hasPexelsKey ? 'key--ok' : 'key--no');
+    var kl = document.getElementById('d-key-license');
+    if (p.licenseCode) { kl.textContent = '🎫 ' + p.licenseCode; kl.hidden = false; }
+    else { kl.hidden = true; }
+
+    // Mini graphique d'activité (14 jours)
+    var chart = document.getElementById('d-chart');
+    chart.innerHTML = '';
+    if (p.activity && p.activity.length) {
+      var max = Math.max.apply(null, p.activity.map(function (d) { return d.count; })) || 1;
+      p.activity.forEach(function (d) {
+        var wrap = document.createElement('div'); wrap.className = 'bar-wrap';
+        var bar = document.createElement('div'); bar.className = 'bar' + (d.count === 0 ? ' zero' : '');
+        bar.style.height = Math.max(3, Math.round((d.count / max) * 58)) + 'px';
+        bar.title = d.date + ' — ' + d.count + ' génération' + (d.count !== 1 ? 's' : '');
+        var lbl = document.createElement('span'); lbl.className = 'day-lbl';
+        lbl.textContent = new Date(d.date).toLocaleDateString('fr-FR', { day: 'numeric' });
+        wrap.appendChild(bar); wrap.appendChild(lbl);
+        chart.appendChild(wrap);
+      });
+    }
 
     var ul = document.getElementById('d-recent');
     if (p.recent && p.recent.length) {
