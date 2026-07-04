@@ -43,7 +43,7 @@
   .field input:focus,.field select:focus{outline:none;border-color:#A855F7;box-shadow:0 0 0 3px rgba(124,58,237,.25)}
   /* Le menu deroulant ouvert est rendu par l'OS (fond blanc par defaut) : on force
      un fond sombre + texte clair sur les options pour eviter le blanc-sur-blanc. */
-  .field select option, .plan-select option{background:#1c1424;color:#fff}
+  .field select option, .plan-select option, #ledger-filter-status option, #ledger-filter-tier option{background:#1c1424;color:#fff}
   .error{display:none;margin:4px 0 12px;padding:10px 14px;border-radius:10px;font-size:.86rem;
     color:#FCA5A5;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35)}
   .error.show{display:block}
@@ -61,7 +61,7 @@
   h2{font-size:1.05rem;font-weight:700;margin-bottom:4px}
   .section-sub{color:#8F89A6;font-size:.85rem;margin-bottom:18px}
 
-  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
   .stat-box{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 14px;text-align:center}
   .stat-num{font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .stat-lbl{margin-top:3px;font-size:.75rem;color:#B4AEC6}
@@ -147,6 +147,7 @@
         <div class="stat-box"><div class="stat-num" id="s-accounts">0</div><div class="stat-lbl">Comptes (ce navigateur)</div></div>
         <div class="stat-box"><div class="stat-num" id="s-paying">0</div><div class="stat-lbl">Comptes payants</div></div>
         <div class="stat-box"><div class="stat-num" id="s-codes">0</div><div class="stat-lbl">Codes dans le registre</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-used">0</div><div class="stat-lbl">Codes activés</div></div>
         <div class="stat-box"><div class="stat-num" id="s-revenue">0 €</div><div class="stat-lbl">Revenu potentiel/mois</div></div>
       </div>
     </div>
@@ -186,6 +187,21 @@
 
       <h2 style="margin-top:8px">📒 Registre des codes émis</h2>
       <p class="section-sub">Sauvegardé dans ce navigateur (localStorage). Exporte régulièrement pour ne rien perdre.</p>
+      <div class="toolbar">
+        <input id="ledger-search" type="search" placeholder="Rechercher un code ou une note…"
+               style="flex:1;min-width:160px;max-width:260px;padding:8px 13px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit" />
+        <select id="ledger-filter-status" style="padding:8px 12px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit">
+          <option value="">Tous les statuts</option>
+          <option value="issued">⏳ Émis</option>
+          <option value="used">✓ Activés</option>
+        </select>
+        <select id="ledger-filter-tier" style="padding:8px 12px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit">
+          <option value="">Toutes les offres</option>
+          <option value="CREA">Créateur</option>
+          <option value="VIRAL">Viral</option>
+          <option value="STUDIO">Studio</option>
+        </select>
+      </div>
       <div class="toolbar">
         <button class="btn btn--ghost btn--sm" id="ledger-export" type="button">⬇ Exporter (.json)</button>
         <button class="btn btn--ghost btn--sm" id="ledger-export-csv" type="button">⬇ Exporter (.csv)</button>
@@ -378,6 +394,7 @@
 
     var ledger = loadLedger();
     document.getElementById('s-codes').textContent = ledger.length;
+    document.getElementById('s-used').textContent = ledger.filter(function (item) { return item.status === 'used'; }).length;
     var revenue = ledger.reduce(function (sum, item) { return sum + (TIER_PRICE[item.tier] || 0); }, 0);
     document.getElementById('s-revenue').textContent = revenue.toFixed(2).replace('.', ',') + ' €';
   }
@@ -451,9 +468,27 @@
     var list = loadLedger();
     var container = document.getElementById('ledger-list');
     var empty = document.getElementById('ledger-empty');
+
+    var q      = (document.getElementById('ledger-search').value || '').trim().toLowerCase();
+    var fStat  = document.getElementById('ledger-filter-status').value;
+    var fTier  = document.getElementById('ledger-filter-tier').value;
+    var filtered = list.filter(function (item, idx) {
+      item._idx = idx; // conserve l'index réel dans le tableau non filtré pour les actions
+      if (fStat && item.status !== fStat) return false;
+      if (fTier && item.tier !== fTier) return false;
+      if (q && item.code.toLowerCase().indexOf(q) === -1 && (item.note || '').toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+
     container.innerHTML = '';
     empty.hidden = list.length > 0;
-    list.forEach(function (item, idx) {
+    empty.textContent = list.length && !filtered.length
+      ? 'Aucun code ne correspond à ce filtre.'
+      : 'Aucun code dans le registre pour l\'instant.';
+    if (list.length && !filtered.length) empty.hidden = false;
+
+    filtered.forEach(function (item) {
+      var idx = item._idx;
       var row = document.createElement('div'); row.className = 'ledger-item';
 
       var tag = document.createElement('span');
@@ -493,6 +528,10 @@
 
     updateOverviewStats(allAccounts);
   }
+
+  document.getElementById('ledger-search').addEventListener('input', renderLedger);
+  document.getElementById('ledger-filter-status').addEventListener('change', renderLedger);
+  document.getElementById('ledger-filter-tier').addEventListener('change', renderLedger);
 
   function downloadFile(content, filename, mime) {
     var blob = new Blob([content], { type: mime });

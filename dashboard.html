@@ -79,9 +79,18 @@
   .key{font-size:.8rem;font-weight:600;padding:7px 13px;border-radius:99px;border:1px solid}
   .key--ok{color:#6EE7B7;border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.1)}
   .key--no{color:#FCA5A5;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08)}
-  .key--license{color:#E9D5FF;border-color:rgba(168,85,247,.4);background:rgba(124,58,237,.12);font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+  .key--license{color:#E9D5FF;border-color:rgba(168,85,247,.4);background:rgba(124,58,237,.12);font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+  .key--license:hover{background:rgba(124,58,237,.2)}
 
-  h2{font-size:.95rem;font-weight:700;color:#B4AEC6;margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em}
+  .quota-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin:-10px 0 20px}
+  .quota-bar__fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#A855F7,#EC4899);transition:width .4s ease}
+  .quota-bar__fill.full{background:linear-gradient(90deg,#F87171,#EF4444)}
+
+  h2{font-size:.95rem;font-weight:700;color:#B4AEC6;margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em;
+    display:flex;align-items:center;justify-content:space-between;gap:10px}
+  h2 .h2-action{font-size:.78rem;font-weight:700;color:#EC7FB8;cursor:pointer;text-transform:none;letter-spacing:0;background:none;border:none;font-family:inherit}
+  h2 .h2-action:hover{color:#fff}
 
   .chart{display:flex;align-items:flex-end;gap:4px;height:70px;margin-bottom:24px;padding:0 2px}
   .chart .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
@@ -98,6 +107,20 @@
   .actions{display:flex;gap:10px;flex-wrap:wrap}
   .upsell{margin-top:18px;padding:13px 16px;border-radius:12px;font-size:.88rem;color:#E9D5FF;
     background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(236,72,153,.14));border:1px solid rgba(168,85,247,.4)}
+
+  .full-history{margin-top:8px}
+  .fh-search{width:100%;padding:9px 13px;margin-bottom:10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);color:#fff;font-size:.86rem;font-family:inherit}
+  .fh-search:focus{outline:none;border-color:#A855F7}
+  .fh-list{list-style:none;display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;margin-bottom:12px}
+  .fh-item{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:11px 15px;cursor:pointer}
+  .fh-item__head{display:flex;justify-content:space-between;gap:14px;align-items:baseline;font-size:.88rem}
+  .fh-item__head .p{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#E7E3F2}
+  .fh-item__head .d{flex:none;font-size:.76rem;color:#8F89A6}
+  .fh-item__body{display:none;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08);
+    font-size:.83rem;color:#C7C1DA;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+  .fh-item.open .fh-item__body{display:block}
+  .fh-empty{text-align:center;color:#8F89A6;font-size:.86rem;padding:16px}
   [hidden]{display:none !important}
 </style>
 </head>
@@ -190,10 +213,12 @@
       <div class="card"><div class="num" id="d-vip">⚡</div><div class="lbl" id="d-vip-lbl">Offre active</div></div>
     </div>
 
+    <div class="quota-bar" id="d-quota-bar" hidden><div class="quota-bar__fill" id="d-quota-fill"></div></div>
+
     <div class="keys">
       <span class="key" id="d-key-groq">Clé Groq</span>
       <span class="key" id="d-key-pexels">Clé Pexels</span>
-      <span class="key key--license" id="d-key-license" hidden>Code</span>
+      <span class="key key--license" id="d-key-license" hidden title="Copier le code"></span>
     </div>
 
     <h2>Activité (14 derniers jours)</h2>
@@ -202,7 +227,19 @@
     <h2>Activité récente</h2>
     <ul class="recent" id="d-recent"></ul>
 
-    <div class="actions">
+    <h2>
+      Historique complet
+      <button class="h2-action" id="d-fh-toggle" type="button">Afficher ↓</button>
+    </h2>
+    <div class="full-history" id="d-fh" hidden>
+      <input class="fh-search" id="d-fh-search" type="search" placeholder="Rechercher dans tout l'historique…" />
+      <ul class="fh-list" id="d-fh-list"></ul>
+      <div class="actions">
+        <button class="btn btn--ghost" id="d-fh-export" type="button">⬇ Exporter (.txt)</button>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:20px">
       <a class="btn" href="https://www.tiktok.com" target="_blank" rel="noopener">🚀 Ouvrir TikTok</a>
       <button class="btn btn--ghost" id="d-refresh" type="button">↻ Actualiser</button>
       <button class="btn btn--ghost" id="d-logout" type="button">Se déconnecter</button>
@@ -368,8 +405,19 @@
     document.getElementById('d-total').textContent = p.totalGenerations;
     var quota = document.getElementById('d-quota');
     var quotaLbl = document.getElementById('d-quota-lbl');
-    if (p.quotaLeft === null || p.quotaLeft === undefined) { quota.textContent = '∞'; quotaLbl.textContent = 'Générations illimitées'; }
-    else { quota.textContent = p.quotaLeft; quotaLbl.textContent = 'Restantes aujourd\'hui'; }
+    var quotaBar = document.getElementById('d-quota-bar');
+    var quotaFill = document.getElementById('d-quota-fill');
+    if (p.quotaLeft === null || p.quotaLeft === undefined) {
+      quota.textContent = '∞'; quotaLbl.textContent = 'Générations illimitées';
+      quotaBar.hidden = true;
+    } else {
+      quota.textContent = p.quotaLeft; quotaLbl.textContent = 'Restantes aujourd\'hui';
+      var totalQuota = p.quotaLeft + p.todayCount;
+      var pct = totalQuota > 0 ? Math.round((p.todayCount / totalQuota) * 100) : 0;
+      quotaFill.style.width = pct + '%';
+      quotaFill.className = 'quota-bar__fill' + (p.quotaLeft === 0 ? ' full' : '');
+      quotaBar.hidden = false;
+    }
 
     document.getElementById('d-vip').textContent = p.plan === 'studio' ? '👑' : p.plan === 'viral' ? '🚀' : p.plan === 'creator' ? '⭐' : '⚡';
     document.getElementById('d-vip-lbl').textContent = 'Offre ' + (PLAN_LABELS[p.plan] || 'Découverte');
@@ -381,8 +429,15 @@
     kp.textContent = p.hasPexelsKey ? '✓ Clé Pexels configurée' : '✗ Clé Pexels manquante (vidéo)';
     kp.className = 'key ' + (p.hasPexelsKey ? 'key--ok' : 'key--no');
     var kl = document.getElementById('d-key-license');
-    if (p.licenseCode) { kl.textContent = '🎫 ' + p.licenseCode; kl.hidden = false; }
-    else { kl.hidden = true; }
+    if (p.licenseCode) {
+      kl.textContent = '🎫 ' + p.licenseCode; kl.hidden = false;
+      kl.onclick = function () {
+        navigator.clipboard.writeText(p.licenseCode).then(function () {
+          var old = kl.textContent; kl.textContent = '✓ Copié !';
+          setTimeout(function () { kl.textContent = old; }, 1500);
+        });
+      };
+    } else { kl.hidden = true; kl.onclick = null; }
 
     // Mini graphique d'activité (14 jours)
     var chart = document.getElementById('d-chart');
@@ -418,12 +473,70 @@
   }
 
   document.getElementById('d-refresh').addEventListener('click', function () {
-    if (creds) login(creds.username, creds.password);
+    if (creds) { login(creds.username, creds.password); }
+    else { send('DASH_WHOAMI', {}).then(function (res) { if (res && res.success && res.profile) render(res.profile); }); }
   });
   document.getElementById('d-logout').addEventListener('click', function () {
     creds = null;
     document.getElementById('dl-pass').value = '';
+    fullHistory = null;
     show('st-login');
+  });
+
+  // ── Historique complet (recherche + export) ──────────────────────────────────
+  var fhToggle = document.getElementById('d-fh-toggle');
+  var fhPanel  = document.getElementById('d-fh');
+  var fhSearch = document.getElementById('d-fh-search');
+  var fhList   = document.getElementById('d-fh-list');
+  var fullHistory = null; // chargé à la demande (évite de tout transférer au premier login)
+
+  function renderFullHistory(filter) {
+    var q = (filter || '').trim().toLowerCase();
+    var items = !q ? fullHistory : fullHistory.filter(function (e) {
+      return (e.prompt || '').toLowerCase().indexOf(q) > -1 || (e.result || '').toLowerCase().indexOf(q) > -1;
+    });
+    if (!items.length) { fhList.innerHTML = '<li class="fh-empty">Aucun résultat.</li>'; return; }
+    fhList.innerHTML = items.map(function (e, i) {
+      return '<li class="fh-item" data-idx="' + i + '">' +
+        '<div class="fh-item__head"><span class="p">' + esc(e.prompt || '(sans titre)') + '</span><span class="d">' + fmtDate(e.createdAt) + '</span></div>' +
+        '<div class="fh-item__body">' + esc(e.result || '') + '</div>' +
+      '</li>';
+    }).join('');
+    fhList.querySelectorAll('.fh-item').forEach(function (li, i) {
+      li.addEventListener('click', function () { li.classList.toggle('open'); });
+    });
+    // referme la portée de "items" pour la recherche suivante en la stockant sur l'élément
+    fhList._current = items;
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  fhToggle.addEventListener('click', function () {
+    var opening = fhPanel.hidden;
+    if (!opening) { fhPanel.hidden = true; fhToggle.textContent = 'Afficher ↓'; return; }
+    fhToggle.textContent = 'Chargement…'; fhToggle.disabled = true;
+    var payload = creds || {};
+    send('DASH_GET_HISTORY', payload).then(function (res) {
+      fhToggle.disabled = false;
+      if (!res || !res.success) { fhToggle.textContent = 'Afficher ↓'; alert((res && res.error) || 'Impossible de charger l\'historique.'); return; }
+      fullHistory = res.history || [];
+      fhPanel.hidden = false;
+      fhToggle.textContent = 'Masquer ↑';
+      renderFullHistory('');
+    });
+  });
+  fhSearch.addEventListener('input', function () { if (fullHistory) renderFullHistory(fhSearch.value); });
+
+  document.getElementById('d-fh-export').addEventListener('click', function () {
+    if (!fullHistory || !fullHistory.length) { alert('Aucun historique à exporter.'); return; }
+    var header = 'STIDIA — Export de l\'historique (' + fullHistory.length + ' génération' + (fullHistory.length > 1 ? 's' : '') + ')\n\n';
+    var body = fullHistory.map(function (e) {
+      return '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' + fmtDate(e.createdAt) + '\nPROMPT : ' + (e.prompt || '') + '\n\n' + (e.result || '') + '\n';
+    }).join('\n');
+    var blob = new Blob([header + body], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'stidia-historique.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   });
 })();
 </script>
