@@ -122,7 +122,7 @@
   <div class="panel" id="st-login" hidden>
     <div class="center" style="margin-bottom:20px">
       <h1>Connexion</h1>
-      <p class="sub">Utilise le compte créé dans l'extension.</p>
+      <p class="sub">Utilise ton compte Stidia (créé ici ou dans l'extension).</p>
     </div>
     <div class="field">
       <label for="dl-user">Identifiant</label>
@@ -134,6 +134,35 @@
     </div>
     <div class="error" id="dl-error"></div>
     <div class="center"><button class="btn" id="dl-btn" type="button">Se connecter</button></div>
+    <p class="center sub" style="margin-top:16px">Pas de compte ? <a href="#" id="go-register">Créer un compte</a></p>
+  </div>
+
+  <!-- Inscription -->
+  <div class="panel" id="st-register" hidden>
+    <div class="center" style="margin-bottom:20px">
+      <h1>Créer un compte</h1>
+      <p class="sub">Ce compte fonctionnera aussi bien ici que dans l'extension.</p>
+    </div>
+    <div class="field">
+      <label for="rg-user">Identifiant</label>
+      <input id="rg-user" type="text" autocomplete="username" placeholder="Choisis un identifiant (3+ caractères)" />
+    </div>
+    <div class="field">
+      <label for="rg-pass">Mot de passe</label>
+      <input id="rg-pass" type="password" autocomplete="new-password" placeholder="6 caractères minimum" />
+    </div>
+    <div class="field">
+      <label for="rg-confirm">Confirmer le mot de passe</label>
+      <input id="rg-confirm" type="password" autocomplete="new-password" placeholder="••••••••" />
+    </div>
+    <div class="field">
+      <label for="rg-key">Clé API Groq</label>
+      <input id="rg-key" type="password" autocomplete="off" spellcheck="false" placeholder="gsk_…" />
+    </div>
+    <p class="sub" style="margin:-8px 0 4px;font-size:.82rem">Gratuite sur <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a></p>
+    <div class="error" id="rg-error"></div>
+    <div class="center"><button class="btn" id="rg-btn" type="button">Créer mon compte</button></div>
+    <p class="center sub" style="margin-top:16px">Déjà un compte ? <a href="#" id="go-login">Se connecter</a></p>
   </div>
 
   <!-- Dashboard -->
@@ -201,7 +230,7 @@
     if (d.reqId && pending[d.reqId]) { pending[d.reqId](d.response); delete pending[d.reqId]; }
   });
 
-  var states = ['st-detect', 'st-noext', 'st-login', 'st-dash'];
+  var states = ['st-detect', 'st-noext', 'st-login', 'st-register', 'st-dash'];
   function show(id) {
     states.forEach(function (s) { document.getElementById(s).hidden = (s !== id); });
   }
@@ -242,6 +271,52 @@
     document.getElementById(id).addEventListener('keydown', function (e) {
       if (e.key === 'Enter') btn.click();
     });
+  });
+
+  // ── Inscription ──────────────────────────────────────────────────────────────
+  var rgBtn = document.getElementById('rg-btn');
+  var rgErr = document.getElementById('rg-error');
+
+  function register() {
+    var username = document.getElementById('rg-user').value.trim();
+    var password = document.getElementById('rg-pass').value;
+    var confirm  = document.getElementById('rg-confirm').value;
+    var apiKey   = document.getElementById('rg-key').value.trim();
+
+    rgErr.classList.remove('show');
+    if (password !== confirm) {
+      rgErr.textContent = 'Les mots de passe ne correspondent pas.';
+      rgErr.classList.add('show');
+      return;
+    }
+
+    rgBtn.disabled = true; rgBtn.textContent = 'Création…';
+    send('DASH_REGISTER', { username: username, password: password, apiKey: apiKey }).then(function (res) {
+      rgBtn.disabled = false; rgBtn.textContent = 'Créer mon compte';
+      if (!res || !res.success) {
+        rgErr.textContent = (res && res.error) || 'Création impossible.';
+        rgErr.classList.add('show');
+        return;
+      }
+      creds = { username: username, password: password };
+      render(res.profile);
+      show('st-dash');
+    });
+  }
+
+  rgBtn.addEventListener('click', register);
+  ['rg-user', 'rg-pass', 'rg-confirm', 'rg-key'].forEach(function (id) {
+    document.getElementById(id).addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') rgBtn.click();
+    });
+  });
+
+  // ── Bascule connexion / inscription ──────────────────────────────────────────
+  document.getElementById('go-register').addEventListener('click', function (e) {
+    e.preventDefault(); errBox.classList.remove('show'); show('st-register');
+  });
+  document.getElementById('go-login').addEventListener('click', function (e) {
+    e.preventDefault(); rgErr.classList.remove('show'); show('st-login');
   });
 
   // ── Rendu du dashboard ──────────────────────────────────────────────────────
