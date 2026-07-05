@@ -367,7 +367,7 @@
     const btnLabel   = document.getElementById('acc-btn-label');
     const btnAvatar  = document.getElementById('acc-avatar');
     const panel      = document.getElementById('acc-panel');
-    const STATES     = ['acc-detect', 'acc-noext', 'acc-login', 'acc-register', 'acc-connected'];
+    const STATES     = ['acc-detect', 'acc-login', 'acc-register', 'acc-connected'];
     const showState  = (id) => STATES.forEach((s) => { document.getElementById(s).hidden = (s !== id); });
 
     const PLAN_LABELS = { free: 'Découverte', creator: 'Créateur', viral: 'Viral', studio: 'Studio' };
@@ -402,7 +402,11 @@
         return;
       }
       send('DASH_PING', {});
-      if (++tries > 8) { clearInterval(probe); showState('acc-noext'); }
+      // Après le délai de détection, on ne bloque plus sur un mur "extension introuvable" :
+      // on montre directement le formulaire de connexion (avec un lien d'installation en
+      // secours). Si l'extension est bien là mais juste lente à répondre, la connexion
+      // fonctionnera quand même ; sinon l'utilisateur obtient une erreur claire et explicite.
+      if (++tries > 8) { clearInterval(probe); renderLoggedOut(); }
     }, 300);
 
     // Ouverture / fermeture du panneau
