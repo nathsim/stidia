@@ -67,7 +67,8 @@
   .stat-lbl{margin-top:3px;font-size:.75rem;color:#B4AEC6}
   @media(max-width:640px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
 
-  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  .table-scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:760px}
   th{text-align:left;color:#8F89A6;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;
     padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
   th.sortable{cursor:pointer;user-select:none;transition:color .15s ease}
@@ -108,6 +109,19 @@
   @media(max-width:720px){.ledger-item{grid-template-columns:1fr;}}
 
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .toolbar--bulk{align-items:center;background:rgba(124,58,237,.12);border:1px solid rgba(168,85,247,.35);border-radius:12px;padding:10px 14px}
+  .toolbar--bulk .plan-select{background:rgba(255,255,255,.08)}
+  .note-input{width:100%;padding:6px 9px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.78rem;font-family:inherit}
+  .quota-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:8px}
+  .quota-bar__fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#A855F7,#EC4899);transition:width .4s ease}
+  .quota-bar__fill.full{background:linear-gradient(90deg,#F87171,#EF4444)}
+  .storage-diag{margin-top:16px}
+  .storage-diag__head{display:flex;justify-content:space-between;font-size:.82rem;color:#B4AEC6}
+  .audit-list{list-style:none;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto}
+  .audit-list li{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;
+    padding:8px 12px;font-size:.82rem;display:flex;justify-content:space-between;gap:10px;color:#C7C1DA}
+  .audit-list .t{flex:none;color:#6F6980;font-size:.74rem}
+  .audit-empty{text-align:center;color:#8F89A6;font-size:.85rem;padding:16px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
     padding:11px 20px;border-radius:99px;font-size:.86rem;font-weight:600;color:#fff;
     background:#1c1424;border:1px solid rgba(255,255,255,.15);opacity:0;transition:transform .3s ease,opacity .3s ease;z-index:50}
@@ -159,6 +173,10 @@
         <div class="stat-box"><div class="stat-num" id="s-used">0</div><div class="stat-lbl">Codes activés</div></div>
         <div class="stat-box"><div class="stat-num" id="s-revenue">0 €</div><div class="stat-lbl">Revenu potentiel/mois</div></div>
       </div>
+      <div class="storage-diag" id="storage-diag" hidden>
+        <div class="storage-diag__head"><span>💾 Stockage local utilisé (chrome.storage.local)</span><span id="storage-diag-txt">—</span></div>
+        <div class="quota-bar"><div class="quota-bar__fill" id="storage-diag-fill"></div></div>
+      </div>
     </div>
 
     <!-- Comptes locaux -->
@@ -168,10 +186,30 @@
       <div class="toolbar">
         <button class="btn btn--ghost btn--sm" id="acc-refresh" type="button">↻ Actualiser</button>
         <input id="acc-search" type="search" placeholder="Rechercher un compte…" style="flex:1;min-width:160px;max-width:260px;padding:8px 13px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit" />
+        <select id="acc-filter-plan" style="padding:8px 12px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.85rem;font-family:inherit">
+          <option value="">Toutes les offres</option>
+          <option value="free">Découverte</option>
+          <option value="creator">Créateur</option>
+          <option value="viral">Viral</option>
+          <option value="studio">Studio</option>
+        </select>
         <button class="btn btn--ghost btn--sm" id="acc-export-csv" type="button">⬇ Exporter (.csv)</button>
       </div>
+      <div class="toolbar toolbar--bulk" id="acc-bulk-bar" hidden>
+        <span class="sub" id="acc-bulk-count" style="margin:0">0 sélectionné(s)</span>
+        <select class="plan-select" id="acc-bulk-plan">
+          <option value="free">→ Découverte</option>
+          <option value="creator">→ Créateur</option>
+          <option value="viral">→ Viral</option>
+          <option value="studio">→ Studio</option>
+        </select>
+        <button class="btn btn--ghost btn--sm" id="acc-bulk-apply" type="button">Appliquer l'offre</button>
+        <button class="btn btn--danger btn--sm" id="acc-bulk-delete" type="button">🗑 Supprimer la sélection</button>
+      </div>
+      <div class="table-scroll">
       <table>
         <thead><tr>
+          <th><input type="checkbox" id="acc-select-all" /></th>
           <th class="sortable" data-sort="username">Compte</th>
           <th class="sortable" data-sort="plan">Offre</th>
           <th>Code</th>
@@ -179,10 +217,25 @@
           <th class="sortable" data-sort="historyCount">Générations</th>
           <th class="sortable" data-sort="createdAt">Depuis</th>
           <th class="sortable" data-sort="lastActivityAt">Dernière activité</th>
+          <th>Note</th>
           <th></th>
         </tr></thead>
-        <tbody id="acc-body"><tr class="empty-row"><td colspan="8">Chargement…</td></tr></tbody>
+        <tbody id="acc-body"><tr class="empty-row"><td colspan="10">Chargement…</td></tr></tbody>
       </table>
+      </div>
+    </div>
+
+    <!-- Journal des actions -->
+    <div class="panel">
+      <div class="toolbar" style="justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <h2>🧾 Journal des actions</h2>
+          <p class="section-sub" style="margin-bottom:0">Historique local des actions staff (changements d'offre, suppressions, codes…).</p>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="audit-clear" type="button">Vider le journal</button>
+      </div>
+      <ul class="audit-list" id="audit-list"></ul>
+      <p class="audit-empty" id="audit-empty">Aucune action enregistrée pour l'instant.</p>
     </div>
 
     <!-- Générateur de codes -->
@@ -290,6 +343,7 @@
         gate.hidden = true; panel.hidden = false;
         allAccounts = res.accounts;
         renderAccounts(allAccounts);
+        refreshStorageDiag();
         return true;
       }
       gateErr.textContent = (res && res.error) || 'Clé refusée.';
@@ -343,6 +397,61 @@
 
   var allAccounts = [];
   var accSort = { key: null, dir: 1 };
+  var accSelected = {}; // { username: true } — sélection courante pour les actions groupées
+
+  // ═══════════════════════ Notes internes (localStorage, par compte) ═════════
+  var NOTES_KEY = 'stidia_admin_notes';
+  function loadNotes() { try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '{}'); } catch (e) { return {}; } }
+  function saveNote(username, note) {
+    var notes = loadNotes();
+    if (note) notes[username] = note; else delete notes[username];
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  }
+
+  // ═══════════════════════ Journal des actions (localStorage) ════════════════
+  var AUDIT_KEY = 'stidia_admin_audit';
+  function loadAudit() { try { return JSON.parse(localStorage.getItem(AUDIT_KEY) || '[]'); } catch (e) { return []; } }
+  function logAction(msg) {
+    var l = loadAudit();
+    l.unshift({ msg: msg, at: new Date().toISOString() });
+    localStorage.setItem(AUDIT_KEY, JSON.stringify(l.slice(0, 200)));
+    renderAudit();
+  }
+  function fmtDateTime(iso) {
+    try { return new Date(iso).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+    catch (e) { return '—'; }
+  }
+  function renderAudit() {
+    var list = loadAudit();
+    var el = document.getElementById('audit-list');
+    var empty = document.getElementById('audit-empty');
+    empty.hidden = list.length > 0;
+    el.innerHTML = list.map(function (e) {
+      return '<li><span>' + e.msg.replace(/</g, '&lt;') + '</span><span class="t">' + fmtDateTime(e.at) + '</span></li>';
+    }).join('');
+  }
+  document.getElementById('audit-clear').addEventListener('click', function () {
+    if (!loadAudit().length) return;
+    if (!confirm('Vider le journal des actions ?')) return;
+    localStorage.setItem(AUDIT_KEY, '[]');
+    renderAudit();
+  });
+  renderAudit();
+
+  // ═══════════════════════ Diagnostic de stockage ═════════════════════════════
+  function refreshStorageDiag() {
+    send('ADMIN_STORAGE_INFO', { adminKey: adminKey }).then(function (res) {
+      if (!res || !res.success) return;
+      var diag = document.getElementById('storage-diag');
+      var pct = res.quota ? Math.min(100, Math.round((res.bytesInUse / res.quota) * 100)) : 0;
+      document.getElementById('storage-diag-txt').textContent =
+        (res.bytesInUse / 1024).toFixed(0) + ' Ko / ' + (res.quota / 1024 / 1024).toFixed(0) + ' Mo (' + pct + '%)';
+      var fill = document.getElementById('storage-diag-fill');
+      fill.style.width = pct + '%';
+      fill.className = 'quota-bar__fill' + (pct >= 85 ? ' full' : '');
+      diag.hidden = false;
+    });
+  }
 
   function activityInfo(iso) {
     if (!iso) return { cls: 'activity--stale', label: 'Jamais généré' };
@@ -380,21 +489,48 @@
     });
   });
 
+  function updateBulkBar(visibleUsernames) {
+    // Purge la sélection des comptes qui ne sont plus visibles (filtre/recherche changés)
+    Object.keys(accSelected).forEach(function (u) { if (visibleUsernames.indexOf(u) === -1) delete accSelected[u]; });
+    var count = Object.keys(accSelected).length;
+    document.getElementById('acc-bulk-bar').hidden = count === 0;
+    document.getElementById('acc-bulk-count').textContent = count + ' sélectionné(s)';
+    var allSel = document.getElementById('acc-select-all');
+    allSel.checked = count > 0 && visibleUsernames.length > 0 && visibleUsernames.every(function (u) { return accSelected[u]; });
+    allSel.indeterminate = count > 0 && !allSel.checked;
+  }
+
   function renderAccounts(accounts) {
     var body = document.getElementById('acc-body');
     var q = (document.getElementById('acc-search').value || '').trim().toLowerCase();
-    var filtered = q ? accounts.filter(function (a) { return a.username.toLowerCase().indexOf(q) > -1; }) : accounts;
+    var fPlan = document.getElementById('acc-filter-plan').value;
+    var filtered = accounts.filter(function (a) {
+      if (q && a.username.toLowerCase().indexOf(q) === -1) return false;
+      if (fPlan && (a.plan || 'free') !== fPlan) return false;
+      return true;
+    });
     filtered = sortAccounts(filtered);
 
     updateOverviewStats(accounts);
 
     if (!filtered.length) {
-      body.innerHTML = '<tr class="empty-row"><td colspan="8">' + (q ? 'Aucun résultat pour « ' + q + ' ».' : 'Aucun compte dans ce navigateur.') + '</td></tr>';
+      body.innerHTML = '<tr class="empty-row"><td colspan="10">' + (q || fPlan ? 'Aucun résultat.' : 'Aucun compte dans ce navigateur.') + '</td></tr>';
+      updateBulkBar([]);
       return;
     }
+    var notes = loadNotes();
     body.innerHTML = '';
     filtered.forEach(function (a) {
       var tr = document.createElement('tr');
+
+      var tdSel = document.createElement('td');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!accSelected[a.username];
+      cb.addEventListener('change', function () {
+        if (cb.checked) accSelected[a.username] = true; else delete accSelected[a.username];
+        updateBulkBar(filtered.map(function (x) { return x.username; }));
+      });
+      tdSel.appendChild(cb);
+      tr.appendChild(tdSel);
 
       var tdUser = document.createElement('td'); tdUser.textContent = '@' + a.username;
       tr.appendChild(tdUser);
@@ -408,8 +544,11 @@
       });
       sel.addEventListener('change', function () {
         send('ADMIN_SET_PLAN', { adminKey: adminKey, username: a.username, plan: sel.value }).then(function (res) {
-          if (res && res.success) { toast('Offre de @' + a.username + ' → ' + PLAN_LABELS[sel.value], 'success'); refreshAccounts(); }
-          else toast((res && res.error) || 'Échec', 'error');
+          if (res && res.success) {
+            toast('Offre de @' + a.username + ' → ' + PLAN_LABELS[sel.value], 'success');
+            logAction('Offre de @' + a.username + ' changée → ' + PLAN_LABELS[sel.value]);
+            refreshAccounts();
+          } else toast((res && res.error) || 'Échec', 'error');
         });
       });
       tdPlan.appendChild(sel);
@@ -436,14 +575,27 @@
       tdActivity.innerHTML = '<span class="activity-dot ' + act.cls + '"></span>' + act.label;
       tr.appendChild(tdActivity);
 
+      var tdNote = document.createElement('td');
+      var noteInput = document.createElement('input');
+      noteInput.className = 'note-input';
+      noteInput.placeholder = '—';
+      noteInput.value = notes[a.username] || '';
+      noteInput.addEventListener('change', function () { saveNote(a.username, noteInput.value.trim()); });
+      tdNote.appendChild(noteInput);
+      tr.appendChild(tdNote);
+
       var tdDel = document.createElement('td');
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn--danger btn--sm'; delBtn.type = 'button'; delBtn.textContent = 'Supprimer';
       delBtn.addEventListener('click', function () {
         if (!confirm('Supprimer definitivement le compte @' + a.username + ' et son historique ?')) return;
         send('ADMIN_DELETE_ACCOUNT', { adminKey: adminKey, username: a.username }).then(function (res) {
-          if (res && res.success) { toast('Compte @' + a.username + ' supprimé', 'success'); refreshAccounts(); }
-          else toast((res && res.error) || 'Échec', 'error');
+          if (res && res.success) {
+            toast('Compte @' + a.username + ' supprimé', 'success');
+            logAction('Compte @' + a.username + ' supprimé');
+            delete accSelected[a.username];
+            refreshAccounts();
+          } else toast((res && res.error) || 'Échec', 'error');
         });
       });
       tdDel.appendChild(delBtn);
@@ -451,6 +603,8 @@
 
       body.appendChild(tr);
     });
+
+    updateBulkBar(filtered.map(function (a) { return a.username; }));
   }
 
   var TIER_PRICE = { CREA: 4.99, VIRAL: 9.99, STUDIO: 24.99 };
@@ -467,12 +621,54 @@
   }
 
   document.getElementById('acc-search').addEventListener('input', function () { renderAccounts(allAccounts); });
+  document.getElementById('acc-filter-plan').addEventListener('change', function () { renderAccounts(allAccounts); });
+
+  document.getElementById('acc-select-all').addEventListener('change', function (e) {
+    // Sélectionne/désélectionne uniquement les comptes actuellement affichés (2e colonne = @identifiant)
+    var shown = [];
+    document.querySelectorAll('#acc-body tr td:nth-child(2)').forEach(function (td) { shown.push(td.textContent.replace(/^@/, '')); });
+    shown.forEach(function (u) { if (e.target.checked) accSelected[u] = true; else delete accSelected[u]; });
+    renderAccounts(allAccounts);
+  });
+
+  document.getElementById('acc-bulk-apply').addEventListener('click', function () {
+    var usernames = Object.keys(accSelected);
+    if (!usernames.length) return;
+    var plan = document.getElementById('acc-bulk-plan').value;
+    if (!confirm('Passer ' + usernames.length + ' compte(s) en offre ' + PLAN_LABELS[plan] + ' ?')) return;
+    Promise.all(usernames.map(function (u) {
+      return send('ADMIN_SET_PLAN', { adminKey: adminKey, username: u, plan: plan });
+    })).then(function (results) {
+      var ok = results.filter(function (r) { return r && r.success; }).length;
+      toast(ok + '/' + usernames.length + ' compte(s) mis à jour → ' + PLAN_LABELS[plan], ok === usernames.length ? 'success' : 'error');
+      logAction(ok + ' compte(s) passés en offre ' + PLAN_LABELS[plan] + ' (action groupée)');
+      accSelected = {};
+      refreshAccounts();
+    });
+  });
+
+  document.getElementById('acc-bulk-delete').addEventListener('click', function () {
+    var usernames = Object.keys(accSelected);
+    if (!usernames.length) return;
+    if (!confirm('Supprimer définitivement ' + usernames.length + ' compte(s) et leur historique ?')) return;
+    Promise.all(usernames.map(function (u) {
+      return send('ADMIN_DELETE_ACCOUNT', { adminKey: adminKey, username: u });
+    })).then(function (results) {
+      var ok = results.filter(function (r) { return r && r.success; }).length;
+      toast(ok + '/' + usernames.length + ' compte(s) supprimé(s)', ok === usernames.length ? 'success' : 'error');
+      logAction(ok + ' compte(s) supprimés (action groupée)');
+      accSelected = {};
+      refreshAccounts();
+    });
+  });
 
   document.getElementById('acc-export-csv').addEventListener('click', function () {
-    var rows = [['Compte', 'Offre', 'Code', 'Groq', 'Pexels', 'Générations', 'Depuis', 'Dernière activité']];
+    var notes = loadNotes();
+    var rows = [['Compte', 'Offre', 'Code', 'Groq', 'Pexels', 'Générations', 'Depuis', 'Dernière activité', 'Note']];
     allAccounts.forEach(function (a) {
       rows.push(['@' + a.username, PLAN_LABELS[a.plan] || a.plan, a.licenseCode || '', a.hasGroqKey ? 'Oui' : 'Non',
-        a.hasPexelsKey ? 'Oui' : 'Non', a.historyCount, fmtDate(a.createdAt), a.lastActivityAt ? fmtDate(a.lastActivityAt) : 'Jamais']);
+        a.hasPexelsKey ? 'Oui' : 'Non', a.historyCount, fmtDate(a.createdAt), a.lastActivityAt ? fmtDate(a.lastActivityAt) : 'Jamais',
+        notes[a.username] || '']);
     });
     var csv = rows.map(function (r) {
       return r.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
@@ -541,6 +737,7 @@
     var l = loadLedger();
     l.unshift({ code: code, tier: tier, note: '', status: 'issued', addedAt: new Date().toISOString() });
     saveLedger(l);
+    logAction('Code ' + code + ' ajouté au registre');
   }
 
   function getFilteredLedger() {
@@ -630,13 +827,16 @@
     filtered.forEach(function (item) { l[item._idx].status = 'used'; });
     saveLedger(l);
     toast(filtered.length + ' code(s) marqué(s) activé(s)', 'success');
+    logAction(filtered.length + ' code(s) marqués activés (action groupée)');
   });
 
   document.getElementById('ledger-clear').addEventListener('click', function () {
-    if (!loadLedger().length) return;
+    var count = loadLedger().length;
+    if (!count) return;
     if (!confirm('Vider tout le registre de codes (irréversible) ?')) return;
     saveLedger([]);
     toast('Registre vidé', 'success');
+    logAction('Registre de codes vidé (' + count + ' code(s))');
   });
 
   function downloadFile(content, filename, mime) {
@@ -669,6 +869,7 @@
         if (!Array.isArray(imported)) throw new Error('Format invalide');
         saveLedger(imported);
         toast('Registre importé (' + imported.length + ' code(s))', 'success');
+        logAction('Registre importé (' + imported.length + ' code(s))');
       } catch (err) { toast('Fichier invalide', 'error'); }
     };
     reader.readAsText(file);
