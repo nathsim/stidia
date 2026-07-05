@@ -426,9 +426,18 @@
     var el = document.getElementById('audit-list');
     var empty = document.getElementById('audit-empty');
     empty.hidden = list.length > 0;
-    el.innerHTML = list.map(function (e) {
-      return '<li><span>' + e.msg.replace(/</g, '&lt;') + '</span><span class="t">' + fmtDateTime(e.at) + '</span></li>';
-    }).join('');
+    el.innerHTML = '';
+    // Construction DOM directe (textContent) plutôt qu'un remplacement regex sur innerHTML :
+    // un nom de compte peut contenir n'importe quel caractère (aucune restriction à l'inscription),
+    // y compris des séquences comme "&lt;" qui seraient ré-décodées en balises si on les injectait
+    // dans du innerHTML sans passer par un vrai échappement.
+    list.forEach(function (e) {
+      var li = document.createElement('li');
+      var msg = document.createElement('span'); msg.textContent = e.msg;
+      var time = document.createElement('span'); time.className = 't'; time.textContent = fmtDateTime(e.at);
+      li.appendChild(msg); li.appendChild(time);
+      el.appendChild(li);
+    });
   }
   document.getElementById('audit-clear').addEventListener('click', function () {
     if (!loadAudit().length) return;
@@ -670,9 +679,7 @@
         a.hasPexelsKey ? 'Oui' : 'Non', a.historyCount, fmtDate(a.createdAt), a.lastActivityAt ? fmtDate(a.lastActivityAt) : 'Jamais',
         notes[a.username] || '']);
     });
-    var csv = rows.map(function (r) {
-      return r.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\r\n');
+    var csv = rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
     downloadFile('﻿' + csv, 'stidia-comptes.csv', 'text/csv;charset=utf-8');
   });
 
@@ -776,7 +783,8 @@
       row.appendChild(tag);
 
       var codeWrap = document.createElement('div');
-      codeWrap.innerHTML = '<code>' + item.code + '</code>';
+      var codeEl = document.createElement('code'); codeEl.textContent = item.code;
+      codeWrap.appendChild(codeEl);
       row.appendChild(codeWrap);
 
       var noteInput = document.createElement('input');
@@ -839,6 +847,14 @@
     logAction('Registre de codes vidé (' + count + ' code(s))');
   });
 
+  // Neutralise l'injection de formule (CSV injection) : Excel/Sheets peuvent interpréter une
+  // cellule commençant par =, +, -, @ comme une formule à l'ouverture du fichier exporté.
+  function csvCell(v) {
+    var s = String(v == null ? '' : v);
+    if (/^[=+\-@]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
   function downloadFile(content, filename, mime) {
     var blob = new Blob([content], { type: mime });
     var url = URL.createObjectURL(blob);
@@ -855,9 +871,7 @@
     loadLedger().forEach(function (item) {
       rows.push([item.code, item.tier, item.status === 'used' ? 'Activé' : 'Émis', item.note || '', fmtDate(item.addedAt)]);
     });
-    var csv = rows.map(function (r) {
-      return r.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\r\n');
+    var csv = rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
     downloadFile('﻿' + csv, 'stidia-registre-codes.csv', 'text/csv;charset=utf-8');
   });
   document.getElementById('ledger-import').addEventListener('change', function (e) {
