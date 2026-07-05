@@ -46,6 +46,12 @@
 /* ─── Reset ───────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Garantit que l'attribut [hidden] masque toujours l'élément, même quand une classe
+   (ex: .acc__avatar { display:grid }) lui fixe par ailleurs une valeur display : sans
+   ce !important, une règle auteur à spécificité égale prime sur le style UA par défaut
+   [hidden]{display:none} et l'élément resterait visible malgré l'attribut. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 16px); -webkit-text-size-adjust: 100%; }
 
 body {
@@ -314,7 +320,12 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 }
 
 @media (max-width: 860px) { .acc { order: -1; } .acc__panel { right: -40px; } }
-@media (max-width: 460px) { .acc__btn span:not(.acc__avatar) { display: none; } .acc__btn { padding: 8px 12px; } }
+/* Sur mobile, ne masque le texte ("@pseudo") que si l'avatar est bien affiché (connecté) :
+   sinon, en état déconnecté (pas d'avatar), le bouton "Se connecter" se retrouverait vide. */
+@media (max-width: 460px) {
+  .acc__btn:has(.acc__avatar:not([hidden])) span:not(.acc__avatar) { display: none; }
+  .acc__btn { padding: 8px 12px; }
+}
 
 /* ─── Layout sections ─────────────────────────────────────────────────────────── */
 main { display: block; }
